@@ -1,0 +1,3 @@
+[submodule "sys/Haanga"]
+	path = sys/Haanga
+	url = git://github.com/crodas/Haanga.git
