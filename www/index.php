@@ -1,45 +1,26 @@
 <?php
-namespace Core
-{
-	class Ctrl
-	{
-		function __construct()
-		{
-			echo 'namespace=',__NAMESPACE__,'::',__CLASS__,'.';
-		}
-	}
-}
 
-namespace test
-{
-	$segs = explode('/', $_SERVER['REQUEST_URI']);
+/***********************************************************
+  Vevui configuration options
+ **********************************************************/
 
-	$time= microtime(TRUE);
+/* Path where the sys folder is located */
+$sys_path = '../sys';
 
-/*
-	for($i=0;$i<10000000;++$i)
-	{
-		echo "hola$i";
-		$start= ($segs[1] === 'index.php')?2:1;
-	}
-*/
+/* Path where the app folder is located */
+$app_path = '../app'; 
 
-	$start= ($segs[1] === 'index.php')?2:1;
 
-	include_once 'test.php';
-	$m = eval('return new \\'.$segs[$start].';');
-	eval('$m->'.$segs[$start+1].'('.implode(',',array_slice($segs, $start+2)).');');
-//	echo 'Done in ',(microtime(TRUE)-$time),' s.<br/>';
+/***********************************************************
+  DON'T EDIT BELOW THIS LINE (UNLESS YOU ARE A DEVELOPER ;)
+ **********************************************************/
 
-	/*
-	ob_start();
-	for($i=0;$i<10000000;++$i)
-		echo 'clase=',$segs[$start],'<br/>'.
-			'metodo=',$segs[$start+1],'<br/>'.
-			'params=',implode(', ', array_slice($segs, $start+2)),".\n";
-	ob_end_flush();
-	*/
-}
+define('VEVUI_VERSION', '0.1a');
 
-/* End of file index.php */
-/* Location: ./pub/index.php */
+define('SYS_PATH', dirname(__FILE__).'/'.$sys_path);
+define('APP_PATH', dirname(__FILE__).'/'.$app_path);
+
+require(SYS_PATH.'/'.'core.php');
+
+
+
