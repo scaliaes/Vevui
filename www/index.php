@@ -17,8 +17,10 @@ $app_path = '../app';
 
 define('VEVUI_VERSION', '0.1a');
 
-define('SYS_PATH', dirname(__FILE__).'/'.$sys_path);
-define('APP_PATH', dirname(__FILE__).'/'.$app_path);
+$dirname_path = dirname(__FILE__);
+
+define('SYS_PATH', $dirname_path.'/'.$sys_path);
+define('APP_PATH', $dirname_path.'/'.$app_path);
 
 require(SYS_PATH.'/'.'core.php');
 
