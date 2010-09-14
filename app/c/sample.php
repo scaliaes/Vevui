@@ -2,10 +2,15 @@
 
 class Sample extends Ctrl
 {
+	function Sample()
+	{
+	}
+
 	function index()
 	{
-		echo 'Welcome to your app!';
-		echo 'La propiedad a del modelo vale '.$this->m->a->get_data();
+		$vars['title'] = 'Sample view';
+		$vars['app']['name'] = 'Vevui';
+		$this->render('index', $vars);
 	}
 
 	function params($par1 = null, $par2 = null, $par3 = null, $par4 = null, $par5 = null)

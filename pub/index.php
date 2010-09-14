@@ -23,4 +23,4 @@ define('APP_PATH', $dirname_path.'/'.$app_path);
 
 require(SYS_PATH.'/core/core.php');
 
-/* End of file www/index.php */
+/* End of file pub/index.php */
