@@ -2,14 +2,14 @@
 
 class Sample extends Ctrl
 {
-	function Sample()
+	function __construct()
 	{
 	}
 
 	function index()
 	{
 		$vars['title'] = 'Sample view';
-		$vars['app']['name'] = 'Vevui';
+		$vars['app']['name'] = 'Vevui'.'=>'.$this->m->test_mdl->get_data();
 		$this->render('index', $vars);
 	}
 

@@ -10,6 +10,9 @@ $sys_path = '../sys';
 /* Path where the app folder is located */
 $app_path = '../app'; 
 
+/* Controller loaded by default */
+$default_controller = 'sample'; 
+
 /***********************************************************
   DON'T EDIT BELOW THIS LINE (UNLESS YOU ARE A DEVELOPER ;)
  **********************************************************/
