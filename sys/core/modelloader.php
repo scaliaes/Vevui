@@ -8,6 +8,7 @@ class ModelLoader
 	{
 		require(SYS_PATH.'/core/mdl.php');
 		require(APP_PATH.'/e/db.php');
+		require(SYS_PATH.'/core/mongomdl.php');
 	}
 
 	function __get($model_name)

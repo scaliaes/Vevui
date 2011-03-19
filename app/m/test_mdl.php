@@ -1,29 +1,25 @@
 <?php
 
-class Test_Mdl extends Mdl
+class Test_Mdl extends MongoMdl
 {
 	function __construct()
 	{
-		parent::Mdl('mysql');
+		parent::__construct('basedatos');
 	}
 
 	function get_data()
 	{
+		$this->foo->insert(array('nombre' => 'pepe'));
+		$this->select_db('otra');
+		$this->foo->insert(array('nombre' => 'juan'));
+		$cursor = $this->foo->find();
 		echo '<pre>';
-		$res = $this->posts->get()->join('post2tag')->join('tags');
-		foreach($res->exec() as $row)
-			print_r($row);
-echo '---------------------<br/>';
-		$conditions[] = array(
-				'idpost',
-				3
-			);
-		$table = $this->{'posts'};	// Just like $this->posts;
-		$table->get('title, content')->where($conditions);
-		$res = $table->exec();
-		foreach($res as $row)
-			print_r($row);
-		return true;
+		foreach ($cursor as $id => $value)
+		{
+		    echo "$id: ";
+		    var_dump( $value );			
+		}
+		echo '</pre>';
 	}
 }
 
