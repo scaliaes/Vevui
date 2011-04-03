@@ -2,8 +2,10 @@
 
 global $config;
 
-$config['db'] = array(
-	'mongodb' => array(
+$config['db'] = array
+(
+	'mongodb' => array
+		(
 			'drv' => 'mongodb',
 			'host' => 'localhost',
 			'user' => '',
@@ -11,7 +13,8 @@ $config['db'] = array(
 			'db' => 'vevui',
 			'opts' => array()
 		),
-	'mysql' => array(
+	'mysql' => array
+		(
 			'drv' => 'mysql',
 			'host' => 'localhost',
 			'user' => 'root',

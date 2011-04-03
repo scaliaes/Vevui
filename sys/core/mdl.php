@@ -4,7 +4,7 @@ class Mdl
 {
 	private $_drv;
 
-	function Mdl($db_index = null)
+	function __construct($db_index = null)
 	{
 		global $config;
 

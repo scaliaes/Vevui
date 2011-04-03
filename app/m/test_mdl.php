@@ -4,7 +4,7 @@ class Test_Mdl extends Mdl
 {
 	function __construct()
 	{
-		parent::Mdl('mysql');
+		parent::__construct('mysql');
 	}
 
 	function get_data()

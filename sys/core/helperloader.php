@@ -1,18 +1,28 @@
 <?php
-	
+
+class Helper
+{
+	function __call($name, $args)
+	{
+		call_user_func_array($name, $args);
+	}
+}
+
 class HelperLoader
 {
-	private $_helpers = array();
-	
+	private $_user_helpers;
+
+	function __construct($user = FALSE)
+	{
+		$this->_user_helpers = $user;
+	}
+
 	function __get($helper_name)
 	{
-		if (!array_key_exists($helper_name, $this->_helpers))
-		{
-			include(SYS_PATH.'/helpers/'.strtolower($helper_name).'.php');
-			$this->_helpers[$helper_name] = new $helper_name();
-		}
-		return $this->_helpers[$helper_name];
-    }
+		$folder = $this->_user_helpers?APP_PATH.'/h/':SYS_PATH.'/helpers/';
+		include($folder.strtolower($helper_name).'.php');
+		return $this->{$helper_name} = new Helper();
+	}
 }
 
 /* End of file sys/core/helperloader.php */

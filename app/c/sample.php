@@ -8,7 +8,13 @@ class Sample extends Ctrl
 
 	function index()
 	{
+$a = 1/0;
 		$vars['title'] = 'Sample view';
+		$a = NULL;
+		$this->mh->test->prueba(1);
+		$this->mh->test->prueba(2);
+//		$a->ojal();
+//		$this->m->test_mdl2;
 		$vars['app']['name'] = 'Vevui'.'=>'.$this->m->test_mdl->get_data();
 		$this->render('index', $vars);
 	}
@@ -23,4 +29,4 @@ class Sample extends Ctrl
 	}
 }
 
-/* End of file app/c/default.php */
+/* End of file app/c/sample.php */
