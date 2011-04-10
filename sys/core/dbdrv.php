@@ -26,16 +26,16 @@ abstract class DBDrv
 
 	function new_query($name)
 	{
-		$this->_type = DBDrv::SQL_UNDEFINED;
+		$this->_type = self::SQL_UNDEFINED;
 		$this->_table = $name;
 		$this->_raw_query = $this->_protect = NULL;
 		$this->_fields = $this->_joins = $this->_conds = $this->_limit = $this->_offset = NULL;
 		$this->_order = NULL;
-	}
+    }
 
 	function raw($query, $protect = array())
 	{
-		$this->_type = DBDrv::SQL_RAW;
+		$this->_type = self::SQL_RAW;
 		$this->_raw_query = $query;
 		$this->_protect = $protect;
 		return $this;
@@ -43,21 +43,21 @@ abstract class DBDrv
 
 	function insert($fields)
 	{
-		$this->_type = DBDrv::SQL_INSERT;
+		$this->_type = self::SQL_INSERT;
 		$this->_fields = $fields;
 		return $this;
 	}
 
 	function select($fields = NULL)
 	{
-		$this->_type = DBDrv::SQL_SELECT;
+		$this->_type = self::SQL_SELECT;
 		$this->_fields = $fields;
 		return $this;
 	}
 
 	function update($fields, $conditions = array())
 	{
-		$this->_type = DBDrv::SQL_UPDATE;
+		$this->_type = self::SQL_UPDATE;
 		$this->_fields = $fields;
 		if ($conditions) $this->_conds[] = $conditions;
 		return $this;
@@ -65,7 +65,7 @@ abstract class DBDrv
 
 	function delete($conditions = array())
 	{
-		$this->_type = DBDrv::SQL_DELETE;
+		$this->_type = self::SQL_DELETE;
 		if ($conditions) $this->_conds[] = $conditions;
 		return $this;
 	}
@@ -97,7 +97,7 @@ abstract class DBDrv
 		return $this;
 	}
 
-	function order($field, $type = DBDrv::ORDER_BY_ASC)
+	function order($field, $type = self::ORDER_BY_ASC)
 	{
 		$this->_order[] = array
 			(
@@ -116,7 +116,7 @@ abstract class DBDrv
 
 	protected function _raise_error($error_string)
 	{
-		include(APP_PATH.'/x/db.php');
+		include(APP_PATH.'/o/db.php');
 	}
 
 	abstract function escape($mixed);

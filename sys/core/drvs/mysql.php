@@ -4,10 +4,10 @@ class MySQL extends DBDrv
 {
 	function __construct($db_config)
 	{
-		$this->_connection = mysql_connect($db_config['host'],
+		$this->_connection = @mysql_connect($db_config['host'],
 					$db_config['user'], $db_config['pass']) or $this->_raise_error(mysql_error());
-		mysql_set_charset($db_config['char'], $this->_connection) or $this->_raise_error(mysql_error());
-		mysql_select_db($db_config['db'], $this->_connection) or $this->_raise_error(mysql_error());
+		@mysql_set_charset($db_config['char'], $this->_connection) or $this->_raise_error(mysql_error());
+		@mysql_select_db($db_config['db'], $this->_connection) or $this->_raise_error(mysql_error());
 	}
 
 	function escape($mixed)
@@ -58,7 +58,7 @@ class MySQL extends DBDrv
 	{
 		$query = $this->string();
 
-		$q = mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(mysql_error());
+		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(mysql_error());
 		$res = array();
 		while($row = mysql_fetch_assoc($q)) $res[] = $row;
 

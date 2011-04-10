@@ -4,12 +4,10 @@ class Mdl
 {
 	const INNER_JOIN = 0; const JOIN = 0;	// They're just aliases.
 	const NATURAL_JOIN = 1;
-	const LEFT_JOIN = 2;
-	const RIGHT_JOIN = 3;
-	const LEFT_OUTER_JOIN = 4;
-	const RIGHT_OUTER_JOIN = 5;
-	const FULL_OUTER_JOIN = 6;
-	const CROSS_JOIN = 7;
+	const LEFT_JOIN = 2; const LEFT_OUTER_JOIN = 2;
+	const RIGHT_JOIN = 3; const RIGHT_OUTER_JOIN = 3;
+	const FULL_OUTER_JOIN = 4;
+	const CROSS_JOIN = 5;
 
 	const ORDER_BY_ASC = 0;
 	const ORDER_BY_DESC = 1;
@@ -21,9 +19,9 @@ class Mdl
 
 	private $_drv;
 
-	function __construct($db_index = null)
+	function __construct($db_index = NULL)
 	{
-		if (null === $db_index)
+		if (NULL === $db_index)
 		{
 			$db_config_key = self::$default_schema;
 			$db_config_value = self::$config[self::$default_schema];
