@@ -2,56 +2,108 @@
 
 abstract class DBDrv
 {
+	const SQL_UNDEFINED = 0;
+	const SQL_RAW = 1;
+	const SQL_INSERT = 2;
+	const SQL_SELECT = 3;
+	const SQL_UPDATE = 4;
+	const SQL_DELETE = 5;
+
+	protected $_type;
 	protected $_connection;
 	protected $_table;
+
+	protected $_raw_query;
+	protected $_protect;
+
 	protected $_fields;
 	protected $_joins;
 	protected $_conds;
 	protected $_limit;
 	protected $_offset;
 
-	function get($fields = null)
+	protected $_order;
+
+	function new_query($name)
 	{
+		$this->_type = DBDrv::SQL_UNDEFINED;
+		$this->_table = $name;
+		$this->_raw_query = $this->_protect = NULL;
+		$this->_fields = $this->_joins = $this->_conds = $this->_limit = $this->_offset = NULL;
+		$this->_order = NULL;
+	}
+
+	function raw($query, $protect = array())
+	{
+		$this->_type = DBDrv::SQL_RAW;
+		$this->_raw_query = $query;
+		$this->_protect = $protect;
+		return $this;
+	}
+
+	function insert($fields)
+	{
+		$this->_type = DBDrv::SQL_INSERT;
 		$this->_fields = $fields;
 		return $this;
 	}
 
-	function new_query($name)
+	function select($fields = NULL)
 	{
-		$this->_table = $name;
-		$this->_fields = $this->_joins = $this->_conds = $this->_limit = $this->_offset = null;
-	}
-
-	function join($table, $type = 'natural', $conditions = array())
-	{
-		$this->_joins[] = array('table' => $table,
-								'type' => $type,
-								'conds' => $conditions
-						);
+		$this->_type = DBDrv::SQL_SELECT;
+		$this->_fields = $fields;
 		return $this;
 	}
 
-	function where($conditions = array())
+	function update($fields, $conditions = array())
 	{
-		$this->_conds = $conditions;
+		$this->_type = DBDrv::SQL_UPDATE;
+		$this->_fields = $fields;
+		if ($conditions) $this->_conds[] = $conditions;
 		return $this;
 	}
 
-	function group($fields = array())
+	function delete($conditions = array())
 	{
-		$this->_conds = $conditions;
+		$this->_type = DBDrv::SQL_DELETE;
+		if ($conditions) $this->_conds[] = $conditions;
 		return $this;
 	}
 
-	function having($fields = array())
+	function join($table, $type = Mdl::INNER_JOIN, $conditions = array())
 	{
-		$this->_conds = $conditions;
+		$this->_joins[] = array
+			(
+				$table,
+				$type,
+				$conditions
+			);
 		return $this;
 	}
 
-	function order($fields = array())
+	function where($conditions)
 	{
-		$this->_conds = $conditions;
+		$this->_conds[] = $conditions;
+		return $this;
+	}
+
+	function group($fields)
+	{
+		return $this;
+	}
+
+	function having($fields)
+	{
+		return $this;
+	}
+
+	function order($field, $type = DBDrv::ORDER_BY_ASC)
+	{
+		$this->_order[] = array
+			(
+				$field,
+				$type
+			);
 		return $this;
 	}
 
@@ -62,6 +114,13 @@ abstract class DBDrv
 		return $this;
 	}
 
+	protected function _raise_error($error_string)
+	{
+		include(APP_PATH.'/x/db.php');
+	}
+
+	abstract function escape($mixed);
+	abstract function string();
 	abstract function exec();
 }
 
