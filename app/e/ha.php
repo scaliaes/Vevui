@@ -1,8 +1,6 @@
 <?php
 
-global $config;
-
-$config['haanga'] = array
+$haanga = array
 (
 	'template_dir' => APP_PATH.'/v/',
 	/* donde los archivos "compilados" PHP serán almacenados */

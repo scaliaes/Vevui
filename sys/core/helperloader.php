@@ -20,7 +20,7 @@ class HelperLoader
 	function __get($helper_name)
 	{
 		$folder = $this->_user_helpers?APP_PATH.'/h/':SYS_PATH.'/helpers/';
-		include($folder.strtolower($helper_name).'.php');
+		include($folder.$helper_name.'.php');
 		return $this->{$helper_name} = new Helper();
 	}
 }

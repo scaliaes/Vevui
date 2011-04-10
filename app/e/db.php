@@ -1,26 +1,18 @@
 <?php
 
-global $config;
-
-$config['db'] = array
+$db = array
 (
-	'mongodb' => array
-		(
-			'drv' => 'mongodb',
-			'host' => 'localhost',
-			'user' => '',
-			'pass' => '',
-			'db' => 'vevui',
-			'opts' => array()
-		),
-	'mysql' => array
+	'mydb' => array
 		(
 			'drv' => 'mysql',
 			'host' => 'localhost',
 			'user' => 'root',
-			'pass' => '',
-			'db' => 'vevui'
+			'pass' => 'droiders',
+			'db' => 'api',
+			'char' => 'UTF8'
 		)
 );
+
+$default_schema = 'mydb';
 
 /* End of file app/e/db.php */

@@ -14,7 +14,8 @@ ini_set('display_errors', 0);
 
 function vevui_shutdown()
 {
-	if ($error = error_get_last())
+	$error = error_get_last();
+	if ($error)
 	{
 		require(SYS_PATH.'/core/errorhandler.php');
 		vevui_shutdown_error_handler($error);
@@ -51,7 +52,7 @@ $request_class_obj = new $request_class();
 if (!is_subclass_of($request_class_obj, 'Ctrl'))
 	trigger_error('Invalid class', E_USER_ERROR);
 
-Haanga::configure($config['haanga']);
+Haanga::configure($haanga);
 
 call_user_func_array(array($request_class_obj, $request_method), $request_params);
 
