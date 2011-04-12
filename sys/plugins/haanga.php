@@ -37,3 +37,4 @@ class Haanga_Extension_Tag_ElapsedTime
 }
 
 /* End of file sys/plugins/haanga.php */
+

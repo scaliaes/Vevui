@@ -31,3 +31,4 @@ $db = array
 $default_schema = 'mydb';
 
 /* End of file app/e/db.php */
+

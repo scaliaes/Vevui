@@ -92,3 +92,4 @@ function vevui_error_handler($errno, $errstr, $errfile, $errline)
 }
 
 /* End of file sys/core/core.php */
+

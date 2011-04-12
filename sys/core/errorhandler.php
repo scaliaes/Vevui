@@ -88,3 +88,4 @@ function vevui_shutdown_error_handler($error)
 }
 
 /* End of file sys/core/errorhandler.php */
+

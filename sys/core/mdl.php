@@ -17,16 +17,6 @@
 
 class Mdl
 {
-	const INNER_JOIN = 0; const JOIN = 0;	// They're just aliases.
-	const NATURAL_JOIN = 1;
-	const LEFT_JOIN = 2; const LEFT_OUTER_JOIN = 2;
-	const RIGHT_JOIN = 3; const RIGHT_OUTER_JOIN = 3;
-	const FULL_OUTER_JOIN = 4;
-	const CROSS_JOIN = 5;
-
-	const ORDER_BY_ASC = 0;
-	const ORDER_BY_DESC = 1;
-
 	static $config;
 	static $default_schema;
 	static $controller;
@@ -54,7 +44,7 @@ class Mdl
 		else
 		{
 			$drv = $db_config_value['drv'];
-			require_once(SYS_PATH.'/core/dbdrv.php');
+			require_once(SYS_PATH.'/core/sqldrv.php');
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 			$this->_drv = self::$_drivers[$db_config_key] = new $drv($db_config_value);
 		}
@@ -73,3 +63,4 @@ class Mdl
 }
 
 /* End of file sys/core/mdl.php */
+

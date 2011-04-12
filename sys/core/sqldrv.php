@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-abstract class DBDrv
+abstract class SQLDrv
 {
 	const SQL_UNDEFINED = 0;
 	const SQL_RAW = 1;
@@ -23,6 +23,13 @@ abstract class DBDrv
 	const SQL_SELECT = 3;
 	const SQL_UPDATE = 4;
 	const SQL_DELETE = 5;
+
+	const JOIN = 0;
+	const NATURAL_JOIN = 1;
+	const LEFT_JOIN = 2;
+	const RIGHT_JOIN = 3;
+	const FULL_OUTER_JOIN = 4;
+	const CROSS_JOIN = 5;
 
 	protected $_type;
 	protected $_connection;
@@ -34,6 +41,8 @@ abstract class DBDrv
 	protected $_fields;
 	protected $_joins;
 	protected $_conds;
+	protected $_group;
+	protected $_having;
 	protected $_limit;
 	protected $_offset;
 
@@ -44,7 +53,7 @@ abstract class DBDrv
 		$this->_type = self::SQL_UNDEFINED;
 		$this->_table = $name;
 		$this->_raw_query = $this->_protect = NULL;
-		$this->_fields = $this->_joins = $this->_conds = $this->_limit = $this->_offset = NULL;
+		$this->_fields = $this->_joins = $this->_conds = $this->_group = $this->_having = $this->_limit = $this->_offset = NULL;
 		$this->_order = NULL;
     }
 
@@ -59,7 +68,7 @@ abstract class DBDrv
 	function insert($fields)
 	{
 		$this->_type = self::SQL_INSERT;
-		$this->_fields = $fields;
+		$this->_fields = is_array(reset($fields))?$fields:array($fields);
 		return $this;
 	}
 
@@ -70,59 +79,114 @@ abstract class DBDrv
 		return $this;
 	}
 
-	function update($fields, $conditions = array())
+	function update($fields, $field, $value, $operator = NULL)
 	{
 		$this->_type = self::SQL_UPDATE;
 		$this->_fields = $fields;
-		if ($conditions) $this->_conds[] = $conditions;
+		$this->_conds[] = array($field, $value, $operator);
 		return $this;
 	}
 
-	function delete($conditions = array())
+	function delete($field, $value, $operator = NULL)
 	{
 		$this->_type = self::SQL_DELETE;
-		if ($conditions) $this->_conds[] = $conditions;
+		$this->_conds[] = array($field, $value, $operator);
 		return $this;
 	}
 
-	function join($table, $type = Mdl::INNER_JOIN, $conditions = array())
+	function join($table, $field, $value, $operator = NULL)
 	{
 		$this->_joins[] = array
 			(
 				$table,
-				$type,
-				$conditions
+				self::JOIN,
+				array($field, $value, $operator)
 			);
 		return $this;
 	}
 
-	function where($conditions)
+	function natural_join($table)
 	{
-		$this->_conds[] = $conditions;
+		$this->_joins[] = array
+			(
+				$table,
+				self::NATURAL_JOIN
+			);
 		return $this;
 	}
 
-	function group($fields)
+	function left_join($table, $field, $value, $operator = NULL)
 	{
+		$this->_joins[] = array
+			(
+				$table,
+				self::LEFT_JOIN,
+				array($field, $value, $operator)
+			);
 		return $this;
 	}
 
-	function having($fields)
+	function right_join($table, $field, $value, $operator = NULL)
 	{
+		$this->_joins[] = array
+			(
+				$table,
+				self::RIGHT_JOIN,
+				array($field, $value, $operator)
+			);
 		return $this;
 	}
 
-	function order($field, $type = self::ORDER_BY_ASC)
+	function full_join($table, $field, $value, $operator = NULL)
+	{
+		$this->_joins[] = array
+			(
+				$table,
+				self::FULL_OUTER_JOIN,
+				array($field, $value, $operator)
+			);
+		return $this;
+	}
+
+	function cross_join($table)
+	{
+		$this->_joins[] = array
+			(
+				$table,
+				self::CROSS_JOIN
+			);
+		return $this;
+	}
+
+	function where($field, $value = NULL, $operator = NULL)
+	{
+		$this->_conds[] = array($field, $value, $operator);
+		return $this;
+	}
+
+	function group($field)
+	{
+		$this->_group[] = $field;
+		return $this;
+	}
+
+	function having($field, $value = NULL, $operator = NULL)
+	{
+		$this->_having[] = array($field, $value, $operator);
+		return $this;
+	}
+
+	function order($field, $asc = TRUE)
 	{
 		$this->_order[] = array
 			(
 				$field,
-				$type
+				$asc
 			);
 		return $this;
 	}
 
-	function limit($limit, $offset = null)
+	function limit($limit, $offset = NULL)
 	{
 		$this->_limit = $limit;
 		$this->_offset = $offset;
@@ -140,3 +204,4 @@ abstract class DBDrv
 }
 
 /* End of file sys/core/dbdrv.php */
+
