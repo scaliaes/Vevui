@@ -56,11 +56,10 @@ class Mdl
 		return $this->_drv;
 	}
 
-	protected function call()
+	protected function ctrl()
 	{
 		return self::$controller;
 	}
 }
 
 /* End of file sys/core/mdl.php */
-

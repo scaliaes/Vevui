@@ -319,4 +319,3 @@ class MySQL extends SQLDrv
 }
 
 /* End of file sys/core/drvs/mysql.php */
-

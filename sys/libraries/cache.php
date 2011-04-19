@@ -15,14 +15,38 @@
  limitations under the License.
 *************************************************************************/
 
-class Lib
+class Cache extends Lib
 {
-	static $controller;
-
-	protected function ctrl()
+	function  __construct()
 	{
-		return Lib::$controller;
+		parent::__construct();
+	}
+
+	function get($name, $params = NULL)
+	{
+		$path = $name;
+		if ($params)
+		{
+			$path .= '/'.implode('/', array_map('sha1', $params));
+		}
+		$path .= '.html';
+
+		$base_path = $this->ctrl()->e->cache['path'];
+		return file_get_contents($base_path.'/'.$path);
+	}
+
+	function set($content, $name, $params = NULL)
+	{
+		$path = $name;
+		if ($params)
+		{
+			$path .= '/'.implode('/', array_map('sha1', $params));
+		}
+		$path .= '.html';
+
+		$base_path = $this->ctrl()->e->cache['path'];
+		return file_put_contents($base_path.'/'.$path, $content);
 	}
 }
 
-/* End of file sys/core/lib.php */
+/* End of file sys/libraries/cache.php */

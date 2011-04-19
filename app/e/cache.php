@@ -1,6 +1,6 @@
 <?php
 /*************************************************************************
- Copyright 2011 Vevui Development Team
+ Copyright 2011 Vevui Development Team 
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,14 +15,6 @@
  limitations under the License.
 *************************************************************************/
 
-class Lib
-{
-	static $controller;
+$config['path'] = '/tmp/vevui';
 
-	protected function ctrl()
-	{
-		return Lib::$controller;
-	}
-}
-
-/* End of file sys/core/lib.php */
+/* End of file app/e/cache.php */
