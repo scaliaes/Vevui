@@ -15,14 +15,17 @@
  limitations under the License.
 *************************************************************************/
 
-class Lib
+class ConfigLoader
 {
-	static $controller;
-
-	protected function ctrl()
+	function __construct($ctrl)
 	{
-		return Lib::$controller;
+    }
+
+	function __get($config_name)
+	{
+		include(APP_PATH.'/e/'.$config_name.'.php');
+		return $this->{$config_name} = $config;
 	}
 }
 
-/* End of file sys/core/lib.php */
+/* End of file sys/core/configloader.php */

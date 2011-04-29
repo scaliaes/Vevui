@@ -19,9 +19,15 @@ class Ctrl
 {
 	private $_helper_loader_loaded = FALSE;
 	private $_library_loader_loaded = FALSE;
+	private $_config_loader_loaded = FALSE;
 	private $_debug;
 	private $_profiling;
 	private $_profile_this;
+
+	private $_cache_result = FALSE;
+	private $_cache_name = NULL;
+	private $_cache_params = NULL;
+	private $_cache_content = '';
 
 	function  __construct()
 	{
@@ -56,6 +62,13 @@ class Ctrl
 					$this->_library_loader_loaded = TRUE;
 				}
 				return $this->l = new LibraryLoader($this);
+			case 'e':
+				if (!$this->_config_loader_loaded)
+				{
+					require(SYS_PATH.'/core/configloader.php');
+					$this->_config_loader_loaded = TRUE;
+				}
+				return $this->e = new ConfigLoader();
 			case 'mh':
 				if (!$this->_helper_loader_loaded)
 				{
@@ -78,8 +91,33 @@ class Ctrl
 	protected function render($view_name, $vars = array())
 	{
 		$output = Haanga::Load($view_name.'.html', $vars, TRUE);
+		if ($this->_cache_result)
+		{
+			$this->_cache_content .= $output;
+		}
+		echo $output;
+	}
+
+	protected function cache($name, $_ = NULL)
+	{
+		$params = array_slice(func_get_args(), 1);
+		$cache = $this->l->cache->get($name, $params);
+		if (is_string($cache))
+		{
+			die($cache);
+		}
+		$this->_cache_result = TRUE;
+		$this->_cache_name = $name;
+		$this->_cache_params = & $params;
+	}
+
+	function  __destruct()
+	{
+		if ($this->_cache_result)
+		{
+			$this->l->cache->set($this->_cache_content, $this->_cache_name, $this->_cache_params);
+		}
 	}
 }
 
 /* End of file sys/core/ctrl.php */
-

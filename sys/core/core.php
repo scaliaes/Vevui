@@ -63,9 +63,9 @@ if ($start < $uri_segs_count)
 $filepath = APP_PATH.'/c/'.$request_class.'.php';
 
 include($filepath);
+//if (!is_subclass_of($request_class, 'Ctrl'))
+//	trigger_error('Invalid class', E_USER_ERROR);
 $request_class_obj = new $request_class();
-if (!is_subclass_of($request_class_obj, 'Ctrl'))
-	trigger_error('Invalid class', E_USER_ERROR);
 
 Haanga::configure($haanga);
 
@@ -92,4 +92,3 @@ function vevui_error_handler($errno, $errstr, $errfile, $errline)
 }
 
 /* End of file sys/core/core.php */
-
