@@ -1,0 +1,8 @@
+c: folder where controllers are located
+e: folder where etc files are located
+h: folder where helpers are located
+l: folder where libraries are located
+m: folder where models are located
+o: folder where default error pages are located
+v: folder where views are located
+x: folder where haanga extensions are located
