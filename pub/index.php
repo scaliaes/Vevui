@@ -26,7 +26,7 @@ $sys_path = '../sys';
 $app_path = '../app'; 
 
 /* Controller loaded by default */
-$default_controller = 'sample'; 
+$default_controller = 'main'; 
 
 /***********************************************************
   DON'T EDIT BELOW THIS LINE (UNLESS YOU ARE A DEVELOPER ;)
