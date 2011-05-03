@@ -19,13 +19,16 @@ class Post extends Lib
 {
 	private $_post;
 	private $_rules;
-	private $_error;
+	private $_errors;
 
 	function  __construct()
 	{
-		$this->_post = &$_POST;
+		$this->_post = $_POST;
 		$this->_rules = array();
-		$this->_error = array();
+		$this->_errors = array();
+		$this->_min_len_rules = array();
+		$this->_max_len_rules = array();		
+		$this->_curname = '';
 	}
 
 	function __get($name)
@@ -33,12 +36,26 @@ class Post extends Lib
 		return array_key_exists($name, $this->_post)?$this->_post[$name]:NULL;
 	}
 
+	function min($len)
+	{
+		$this->_min_len_rules[$this->_curname] = $len;
+		return $this;
+	}
+	
+	function max($len)
+	{
+		$this->_max_len_rules[$this->_curname] = $len;
+		return $this;		
+	}	
+	
 	function rule($name, $required, $_ = NULL)
 	{
 		$this->_rules[] = array($name, $required, $_?array_slice(func_get_args(), 2):array());
+		$this->_curname = $name;
+		return $this;
 	}
 
-	function check($all = FALSE)
+	function check()
 	{
 		foreach($this->_rules as $rule)
 		{
@@ -48,10 +65,23 @@ class Post extends Lib
 
 			if ( $required && ((!array_key_exists($name, $this->_post)) || (''===$this->_post[$name])) )
 			{
-				$this->_error[] = $name;
-				if (!$all) return FALSE;
+				$this->_errors[ $name . '_error' ] = TRUE;
 			}
 
+			if (array_key_exists($name, $this->_min_len_rules))
+			{
+				$minlen = $this->_min_len_rules[$name];
+				if(strlen($this->_post[$name]) < $minlen)
+					$this->_errors[ $name . '_error' ] = TRUE;
+			}
+
+			if (array_key_exists($name, $this->_max_len_rules))
+			{
+				$maxlen = $this->_max_len_rules[$name];
+				if(strlen($this->_post[$name]) > $maxlen)
+					$this->_errors[ $name . '_error' ] = TRUE;
+			}			
+			
 			if (array_key_exists($name, $this->_post))
 			{
 				$param = $this->_post[$name];
@@ -62,19 +92,26 @@ class Post extends Lib
 					{
 						if (!$res)
 						{
-							$this->_error[] = $name;
-							if (!$all) return FALSE;
+							$this->_errors[ $name . '_error' ] = TRUE;
 						}
 					}
 					else
 					{
-						$param = $res;
+						if('' === $res)
+							$this->_errors[ $name . '_error' ] = TRUE;
+						else
+							$param = $res;
 					}
 				}
 				$this->_post[$name] = $param;
 			}
 		}
-		return empty($this->_error);
+		return empty($this->_errors);
+	}
+	
+	function get_errors()
+	{
+		return $this->_errors;
 	}
 }
 
