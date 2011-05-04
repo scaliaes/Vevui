@@ -69,6 +69,13 @@ $request_class_obj = new $request_class();
 
 Haanga::configure($haanga);
 
+// Check if the method can be called or show 404 error
+if(!is_callable(array($request_class_obj, $request_method)))
+{
+	Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+	exit;
+}
+
 call_user_func_array(array($request_class_obj, $request_method), $request_params);
 
 function vevui_error_handler($errno, $errstr, $errfile, $errline)
