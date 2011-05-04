@@ -72,8 +72,11 @@ class MySQL extends SQLDrv
 	function exec()
 	{
 		$query = $this->string();
+		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+		
+		if(TRUE === $q)
+			return TRUE;
 
-		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(mysql_error());
 		$res = array();
 		while($row = mysql_fetch_assoc($q)) $res[] = $row;
 
@@ -179,19 +182,19 @@ class MySQL extends SQLDrv
 		return ' LIMIT ' . (is_numeric($offset)?$offset.', ':'') . $limit;
 	}
 
+	private function _parse_conds($conds, $prev_table, $next_table)
+	{
+		$query = array();
+		foreach($conds as $cond)
+		{
+			$comp = $cond[2]?$cond[2]:'=';
+			$query[] = $and.$prev_table.'.'.$cond[0].$comp.$next_table.'.'.$cond[1];
+		}
+		return implode(' AND ', $query);
+	}
+
 	private function _select()
 	{
-		function _parse_conds($conds, $prev_table, $next_table)
-		{
-			$query = array();
-			foreach($conds as $cond)
-			{
-				$comp = $cond[2]?$cond[2]:'=';
-				$query[] = $and.$prev_table.'.'.$cond[0].$comp.$next_table.'.'.$cond[1];
-			}
-			return implode(' AND ', $query);
-		}
-
 		$query = 'SELECT ';
 		$fields = $this->_fields;
 		$query .= $fields? (is_string($fields)?$fields:implode(',', $fields)) : '*';
@@ -234,7 +237,7 @@ class MySQL extends SQLDrv
 
 		if ($this->_conds)	// WHERE statement.
 		{
-			$query .= $this->_parse_where($this->conds);
+			$query .= $this->_parse_where($this->_conds);
 		}
 
 		if ($this->_group)	// GROUP BY statement.
@@ -279,7 +282,7 @@ class MySQL extends SQLDrv
 
 		if ($this->_conds)	// WHERE statement.
 		{
-			$query .= $this->_parse_where($this->conds);
+			$query .= $this->_parse_where($this->_conds);
 		}
 
 		if ($this->_order)	// ORDER BY statement.
@@ -301,7 +304,7 @@ class MySQL extends SQLDrv
 
 		if ($this->_conds)	// WHERE statement.
 		{
-			$query .= $this->_parse_where($this->conds);
+			$query .= $this->_parse_where($this->_conds);
 		}
 
 		if ($this->_order)	// ORDER BY statement.

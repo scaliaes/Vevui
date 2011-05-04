@@ -195,7 +195,14 @@ abstract class SQLDrv
 
 	protected function _raise_error($error_string)
 	{
-		include(APP_PATH.'/o/db.php');
+		// TODO: store error_string in error database and
+		// don't access $debug throught global vars
+		global $debug;		
+		if(TRUE === $debug)
+			echo '<p>'.$error_string.'</p>';
+			
+		include(APP_PATH.'/o/db.html');		
+		exit;
 	}
 
 	abstract function escape($mixed);
