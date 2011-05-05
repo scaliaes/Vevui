@@ -83,6 +83,16 @@ class MySQL extends SQLDrv
 		mysql_free_result($q);
 		return $res;
 	}
+	
+	function last_id()
+	{
+		return mysql_insert_id($this->_connection);
+	}
+	
+	function affected_rows()
+	{
+		return mysql_affected_rows();
+	}
 
 	private function _raw()
 	{

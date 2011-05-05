@@ -60,6 +60,16 @@ class Mdl
 	{
 		return self::$controller;
 	}
+	
+	protected function last_id()
+	{
+		return $this->_drv->last_id();
+	}
+	
+	protected function affected_rows()
+	{
+		return $this->_drv->affected_rows();
+	}
 }
 
 /* End of file sys/core/mdl.php */

@@ -208,6 +208,8 @@ abstract class SQLDrv
 	abstract function escape($mixed);
 	abstract function string();
 	abstract function exec();
+	abstract function last_id();
+	abstract function affected_rows();
 }
 
 /* End of file sys/core/dbdrv.php */
