@@ -27,7 +27,8 @@ class Post extends Lib
 		$this->_rules = array();
 		$this->_errors = array();
 		$this->_min_len_rules = array();
-		$this->_max_len_rules = array();		
+		$this->_max_len_rules = array();
+		$this->_valid_mail_rules = array();		
 		$this->_curname = '';
 	}
 
@@ -36,6 +37,13 @@ class Post extends Lib
 		return array_key_exists($name, $this->_post)?$this->_post[$name]:NULL;
 	}
 
+	function rule($name, $required, $_ = NULL)
+	{
+		$this->_rules[] = array($name, $required, $_?array_slice(func_get_args(), 2):array());
+		$this->_curname = $name;
+		return $this;
+	}
+	
 	function min($len)
 	{
 		$this->_min_len_rules[$this->_curname] = $len;
@@ -47,11 +55,10 @@ class Post extends Lib
 		$this->_max_len_rules[$this->_curname] = $len;
 		return $this;		
 	}	
-	
-	function rule($name, $required, $_ = NULL)
+
+	function valid_email()
 	{
-		$this->_rules[] = array($name, $required, $_?array_slice(func_get_args(), 2):array());
-		$this->_curname = $name;
+		$this->_valid_mail_rules[$this->_curname] = TRUE;
 		return $this;
 	}
 
@@ -61,26 +68,7 @@ class Post extends Lib
 		{
 			$name = $rule[0];
 			$required = $rule[1];
-			$funcs = $rule[2];
-
-			if ( $required && ((!array_key_exists($name, $this->_post)) || (''===$this->_post[$name])) )
-			{
-				$this->_errors[ $name . '_error' ] = TRUE;
-			}
-
-			if (array_key_exists($name, $this->_min_len_rules))
-			{
-				$minlen = $this->_min_len_rules[$name];
-				if(strlen($this->_post[$name]) < $minlen)
-					$this->_errors[ $name . '_error' ] = TRUE;
-			}
-
-			if (array_key_exists($name, $this->_max_len_rules))
-			{
-				$maxlen = $this->_max_len_rules[$name];
-				if(strlen($this->_post[$name]) > $maxlen)
-					$this->_errors[ $name . '_error' ] = TRUE;
-			}			
+			$funcs = $rule[2];		
 			
 			if (array_key_exists($name, $this->_post))
 			{
@@ -104,6 +92,32 @@ class Post extends Lib
 					}
 				}
 				$this->_post[$name] = $param;
+			}
+			
+			if ( $required && ((!array_key_exists($name, $this->_post)) || (''===$this->_post[$name])) )
+			{
+				$this->_errors[ $name . '_error' ] = TRUE;
+			}
+
+			if (array_key_exists($name, $this->_min_len_rules))
+			{
+				$minlen = $this->_min_len_rules[$name];
+				if(strlen($this->_post[$name]) < $minlen)
+					$this->_errors[ $name . '_error' ] = TRUE;
+			}
+
+			if (array_key_exists($name, $this->_max_len_rules))
+			{
+				$maxlen = $this->_max_len_rules[$name];
+				if(strlen($this->_post[$name]) > $maxlen)
+					$this->_errors[ $name . '_error' ] = TRUE;
+			}
+			
+			if (array_key_exists($name, $this->_valid_mail_rules))
+			{
+				$regexp = "/^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[.][A-z]{2,4}$/";
+				if (!preg_match($regexp, $this->_post[$name]))
+					$this->_errors[ $name . '_error' ] = TRUE;
 			}
 		}
 		return empty($this->_errors);
