@@ -88,16 +88,39 @@ class Ctrl
 		}
 	}
 
-	protected function render($view_name, $vars = array())
+	function render($view_name, $vars = array(), $print_output = TRUE)
 	{
 		$output = Haanga::Load($view_name.'.html', $vars, TRUE);
+		
 		if ($this->_cache_result)
 		{
 			$this->_cache_content .= $output;
 		}
-		echo $output;
+		
+		if($print_output)
+			echo $output;
+		else
+			return $output;
 	}
 
+	protected function redir($location, $code = 301)
+	{
+		switch($code)
+		{
+			case 301:
+				header('HTTP/1.1 301 Moved Permanently');
+				break;
+			case 302:
+				header("HTTP/1.1 302 Moved Temporarily"); 
+				break;
+			default:
+				break;
+		}
+		
+		header('Location: '.$location);
+		exit;
+	}
+	
 	protected function cache($name, $_ = NULL)
 	{
 		$params = array_slice(func_get_args(), 1);

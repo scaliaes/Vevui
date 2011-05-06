@@ -78,7 +78,7 @@ class MySQL extends SQLDrv
 			return TRUE;
 
 		$res = array();
-		while($row = mysql_fetch_assoc($q)) $res[] = $row;
+		while($row = mysql_fetch_object($q)) $res[] = $row;
 
 		mysql_free_result($q);
 		return $res;
