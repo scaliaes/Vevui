@@ -20,10 +20,6 @@ class ModelLoader
 	function __construct($ctrl)
 	{
 		require(SYS_PATH.'/core/mdl.php');
-		require(APP_PATH.'/e/db.php');
-
-        Mdl::$config = & $db;
-		Mdl::$default_schema = & $default_schema;
 		Mdl::$controller = & $ctrl;
     }
 

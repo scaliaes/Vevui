@@ -17,8 +17,6 @@
 
 class Mdl
 {
-	static $config;
-	static $default_schema;
 	static $controller;
 	private static $_drivers = array();
 
@@ -26,15 +24,16 @@ class Mdl
 
 	function __construct($db_index = NULL)
 	{
+		$config = self::$controller->e->db;
 		if (NULL === $db_index)
 		{
-			$db_config_key = self::$default_schema;
-			$db_config_value = self::$config[self::$default_schema];
+			$db_config_key = $config['default_schema'];
+			$db_config_value = $config['db'][$db_config_key];
 		}
 		else
 		{
 			$db_config_key = $db_index;
-			$db_config_value = self::$config[$db_index];
+			$db_config_value = $config['db'][$db_index];
 		}
 
 		if (array_key_exists($db_config_key, self::$_drivers))

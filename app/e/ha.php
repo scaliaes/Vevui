@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-$haanga = array
+$config['haanga'] = array
 (
 	'template_dir' => APP_PATH.'/v/',
 	/* donde los archivos "compilados" PHP serán almacenados */

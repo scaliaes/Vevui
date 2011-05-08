@@ -17,9 +17,9 @@
 
 class Ctrl
 {
+	private $_haanga_loaded = FALSE;
 	private $_helper_loader_loaded = FALSE;
 	private $_library_loader_loaded = FALSE;
-	private $_config_loader_loaded = FALSE;
 	private $_debug;
 	private $_profiling;
 	private $_profile_this;
@@ -31,9 +31,13 @@ class Ctrl
 
 	function  __construct()
 	{
-		require(APP_PATH.'/e/app.php');
-		$this->_debug = $debug;
-		$this->_profiling = $profiling;
+		require(SYS_PATH.'/core/configloader.php');
+		$this->e = new ConfigLoader();
+
+		$config = $this->e->app;
+
+		$this->_debug = $config['debug'];
+		$this->_profiling = $config['profiling'];
 
 		if (lcg_value() < $this->_profiling) // Hooray, saving data!
 		{
@@ -62,13 +66,6 @@ class Ctrl
 					$this->_library_loader_loaded = TRUE;
 				}
 				return $this->l = new LibraryLoader($this);
-			case 'e':
-				if (!$this->_config_loader_loaded)
-				{
-					require(SYS_PATH.'/core/configloader.php');
-					$this->_config_loader_loaded = TRUE;
-				}
-				return $this->e = new ConfigLoader();
 			case 'mh':
 				if (!$this->_helper_loader_loaded)
 				{
@@ -90,6 +87,14 @@ class Ctrl
 
 	function render($view_name, $vars = array(), $print_output = TRUE)
 	{
+		if (!$this->_haanga_loaded)
+		{
+			require(SYS_PATH.'/haanga/lib/Haanga.php');
+			require(SYS_PATH.'/plugins/haanga.php');
+			$config = $this->e->ha;
+			Haanga::configure($config['haanga']);
+			$this->_haanga_loaded = TRUE;
+		}
 		$output = Haanga::Load($view_name.'.html', $vars, TRUE);
 		
 		if ($this->_cache_result)

@@ -15,8 +15,8 @@
  limitations under the License.
 *************************************************************************/
 
-$version = 0;
-$debug = TRUE;
-$profiling = 0.5;
+$config['version'] = 0;
+$config['debug'] = TRUE;
+$config['profiling'] = 0.5;
 
 /* End of file app/e/app.php */

@@ -20,9 +20,6 @@ $globals = array();
 $globals['start_time'] = microtime(TRUE);
 
 require(SYS_PATH.'/core/ctrl.php');
-require(SYS_PATH.'/haanga/lib/Haanga.php');
-require(SYS_PATH.'/plugins/haanga.php');
-require(APP_PATH.'/e/ha.php');
 
 error_reporting(0);
 ini_set('display_errors', 0);
@@ -67,11 +64,14 @@ include($filepath);
 //	trigger_error('Invalid class', E_USER_ERROR);
 $request_class_obj = new $request_class();
 
-Haanga::configure($haanga);
-
 if(!is_callable(array($request_class_obj, $request_method)))
 {
-	Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+	require(SYS_PATH.'/haanga/lib/Haanga.php');
+	require(SYS_PATH.'/plugins/haanga.php');
+	require(APP_PATH.'/e/ha.php');
+
+	Haanga::configure($config['haanga']);
+	Haanga::Load(APP_PATH.'/o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
 	exit;
 }
 
