@@ -127,7 +127,7 @@ class MySQL extends SQLDrv
 			$field = $cond[0];
 			$values = $cond[1];
 			$operator = $cond[2];
-			if ($values)
+			if ($values !== NULL)
 			{
 				if (is_array($values))
 				{
@@ -156,7 +156,7 @@ class MySQL extends SQLDrv
 			$field = $cond[0];
 			$values = $cond[1];
 			$operator = $cond[2];
-			if ($values)
+			if ($values !== NULL)
 			{
 				if (is_array($values))
 				{
