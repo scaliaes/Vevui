@@ -85,7 +85,7 @@ class Post extends Lib
 					}
 					else
 					{
-						if('' === $res)
+						if( $required && ('' === $res) )
 							$this->_errors[ $name . '_error' ] = TRUE;
 						else
 							$param = $res;
