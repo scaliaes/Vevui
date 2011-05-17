@@ -19,7 +19,7 @@ class Helper
 {
 	function __call($name, $args)
 	{
-		call_user_func_array($name, $args);
+		return call_user_func_array($name, $args);
 	}
 }
 
