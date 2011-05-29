@@ -127,7 +127,7 @@ class MySQL extends SQLDrv
 			$field = $cond[0];
 			$values = $cond[1];
 			$operator = $cond[2];
-			if ($values)
+			if ($values !== NULL)
 			{
 				if (is_array($values))
 				{
@@ -156,7 +156,7 @@ class MySQL extends SQLDrv
 			$field = $cond[0];
 			$values = $cond[1];
 			$operator = $cond[2];
-			if ($values)
+			if ($values !== NULL)
 			{
 				if (is_array($values))
 				{
@@ -192,17 +192,6 @@ class MySQL extends SQLDrv
 		return ' LIMIT ' . (is_numeric($offset)?$offset.', ':'') . $limit;
 	}
 
-	private function _parse_conds($conds, $prev_table, $next_table)
-	{
-		$query = array();
-		foreach($conds as $cond)
-		{
-			$comp = $cond[2]?$cond[2]:'=';
-			$query[] = $and.$prev_table.'.'.$cond[0].$comp.$next_table.'.'.$cond[1];
-		}
-		return implode(' AND ', $query);
-	}
-
 	private function _select()
 	{
 		$query = 'SELECT ';
@@ -213,27 +202,27 @@ class MySQL extends SQLDrv
 
 		if($this->_joins)	// JOINs statements.
 		{
-			$prev_table = $this->_table;
 			foreach($this->_joins as $join)
 			{
 				$table = $join[0];
-				$conds = $join[2];
+				$cond = $join[2];
 				switch (strtolower($join[1]))
 				{
 					case self::JOIN:
-						$query .= ' JOIN '.$table.' ON '._parse_conds($conds, $prev_table, $table);
+						$comp = $cond[2]?$cond[2]:'=';
+						$query .= ' JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::NATURAL_JOIN:
 						$query .= ' NATURAL JOIN '.$table;
 						break;
 					case self::LEFT_JOIN:
-						$query .= ' LEFT JOIN '.$table.' ON '._parse_conds($conds, $prev_table, $table);
+						$query .= ' LEFT JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::RIGHT_JOIN:
-						$query .= ' RIGHT JOIN '.$table.' ON '._parse_conds($conds, $prev_table, $table);
+						$query .= ' RIGHT JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::FULL_OUTER_JOIN:
-						$query .= ' FULL OUTER JOIN '.$table.' ON '._parse_conds($conds, $prev_table, $table);
+						$query .= ' FULL OUTER JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::CROSS_JOIN:
 						$query .= ', '.$table;
@@ -241,7 +230,6 @@ class MySQL extends SQLDrv
 					default:
 						// Error
 				}
-				$prev_table = $table;
 			}
 		}
 
