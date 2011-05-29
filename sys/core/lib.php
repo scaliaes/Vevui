@@ -17,12 +17,6 @@
 
 class Lib
 {
-	static $controller;
-
-	protected function ctrl()
-	{
-		return Lib::$controller;
-	}
 }
 
 /* End of file sys/core/lib.php */

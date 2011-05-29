@@ -17,7 +17,7 @@
 
 class ConfigLoader
 {
-	function __construct($ctrl)
+	function __construct()
 	{
     }
 

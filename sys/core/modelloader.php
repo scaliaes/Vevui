@@ -17,10 +17,9 @@
 
 class ModelLoader
 {
-	function __construct($ctrl)
+	function __construct()
 	{
 		require(SYS_PATH.'/core/mdl.php');
-		Mdl::$controller = & $ctrl;
     }
 
 	function __get($model_name)

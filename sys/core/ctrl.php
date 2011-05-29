@@ -17,9 +17,7 @@
 
 class Ctrl
 {
-	private $_haanga_loaded = FALSE;
-	private $_helper_loader_loaded = FALSE;
-	private $_library_loader_loaded = FALSE;
+	private $_core;
 	private $_debug;
 	private $_profiling;
 	private $_profile_this;
@@ -31,8 +29,7 @@ class Ctrl
 
 	function  __construct()
 	{
-		require(SYS_PATH.'/core/configloader.php');
-		$this->e = new ConfigLoader();
+		$this->_core = Vevui::get();
 
 		$config = $this->e->app;
 
@@ -47,61 +44,17 @@ class Ctrl
 
 	function __get($prop_name)
 	{
-		switch ($prop_name)
-		{
-			case 'm':
-				require(SYS_PATH.'/core/modelloader.php');
-				return $this->m = new ModelLoader($this);
-			case 'h':
-				if (!$this->_helper_loader_loaded)
-				{
-					require(SYS_PATH.'/core/helperloader.php');
-					$this->_helper_loader_loaded = TRUE;
-				}
-				return $this->h = new HelperLoader();
-			case 'l':
-				if (!$this->_library_loader_loaded)
-				{
-					require(SYS_PATH.'/core/libraryloader.php');
-					$this->_library_loader_loaded = TRUE;
-				}
-				return $this->l = new LibraryLoader($this);
-			case 'mh':
-				if (!$this->_helper_loader_loaded)
-				{
-					require(SYS_PATH.'/core/helperloader.php');
-					$this->_helper_loader_loaded = TRUE;
-				}
-				return $this->mh = new HelperLoader(TRUE);
-			case 'ml':
-				if (!$this->_library_loader_loaded)
-				{
-					require(SYS_PATH.'/core/libraryloader.php');
-					$this->_library_loader_loaded = TRUE;
-				}
-				return $this->ml = new LibraryLoader($this, TRUE);
-			default:
-				trigger_error('Undefined variable: '.$prop_name, E_USER_ERROR);
-		}
+		return $this->{$prop_name} = $this->_core->{$prop_name};
 	}
 
-	function render($view_name, $vars = array(), $print_output = TRUE)
+	protected function render($view_name, $vars = array(), $print_output = TRUE)
 	{
-		if (!$this->_haanga_loaded)
-		{
-			require(SYS_PATH.'/haanga/lib/Haanga.php');
-			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->ha;
-			Haanga::configure($config['haanga']);
-			$this->_haanga_loaded = TRUE;
-		}
-		$output = Haanga::Load($view_name.'.html', $vars, TRUE);
-		
+		$output = $this->_core->render($view_name, $vars, $print_output);
 		if ($this->_cache_result)
 		{
 			$this->_cache_content .= $output;
 		}
-		
+
 		if($print_output)
 			echo $output;
 		else
@@ -139,7 +92,7 @@ class Ctrl
 		$this->_cache_params = & $params;
 	}
 
-	function  __destruct()
+	function __destruct()
 	{
 		if ($this->_cache_result)
 		{

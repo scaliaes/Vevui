@@ -17,14 +17,16 @@
 
 class Mdl
 {
-	static $controller;
 	private static $_drivers = array();
+	private $_core;
 
 	private $_drv;
 
 	function __construct($db_index = NULL)
 	{
-		$config = self::$controller->e->db;
+		$this->_core = Vevui::get();
+
+		$config = $this->_core->e->db;
 		if (NULL === $db_index)
 		{
 			$db_config_key = $config['default_schema'];
@@ -53,11 +55,6 @@ class Mdl
 	{
 		$this->_drv->new_query($name);
 		return $this->_drv;
-	}
-
-	protected function ctrl()
-	{
-		return self::$controller;
 	}
 	
 	protected function last_id()

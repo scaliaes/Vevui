@@ -20,6 +20,86 @@ $globals = array();
 $globals['start_time'] = microtime(TRUE);
 
 require(SYS_PATH.'/core/ctrl.php');
+require(SYS_PATH.'/core/configloader.php');
+
+class Vevui
+{
+	static private $_core = NULL;
+
+	private $_haanga_loaded = FALSE;
+	private $_helper_loader_loaded = FALSE;
+	private $_library_loader_loaded = FALSE;
+
+	static public function & get()
+	{
+		if (is_null(self::$_core))
+		{
+			self::$_core = new Vevui();
+		}
+		return self::$_core;
+	}
+
+	protected function  __construct()
+	{
+		$this->e = new ConfigLoader();
+	}
+
+	public function __get($prop_name)
+	{
+		switch ($prop_name)
+		{
+			case 'm':
+				require(SYS_PATH.'/core/modelloader.php');
+				return $this->m = new ModelLoader();
+			case 'h':
+				if (!$this->_helper_loader_loaded)
+				{
+					require(SYS_PATH.'/core/helperloader.php');
+					$this->_helper_loader_loaded = TRUE;
+				}
+				return $this->h = new HelperLoader();
+			case 'l':
+				if (!$this->_library_loader_loaded)
+				{
+					require(SYS_PATH.'/core/libraryloader.php');
+					$this->_library_loader_loaded = TRUE;
+				}
+				return $this->l = new LibraryLoader();
+			case 'mh':
+				if (!$this->_helper_loader_loaded)
+				{
+					require(SYS_PATH.'/core/helperloader.php');
+					$this->_helper_loader_loaded = TRUE;
+				}
+				return $this->mh = new HelperLoader(TRUE);
+			case 'ml':
+				if (!$this->_library_loader_loaded)
+				{
+					require(SYS_PATH.'/core/libraryloader.php');
+					$this->_library_loader_loaded = TRUE;
+				}
+				return $this->ml = new LibraryLoader(TRUE);
+			default:
+				trigger_error('Undefined variable: '.$prop_name, E_USER_ERROR);
+		}
+	}
+
+	public function render($view_name, $vars = array(), $print_output = TRUE)
+	{
+		if (!$this->_haanga_loaded)
+		{
+			require(SYS_PATH.'/haanga/lib/Haanga.php');
+			require(SYS_PATH.'/plugins/haanga.php');
+			$config = $this->e->ha;
+			Haanga::configure($config['haanga']);
+			$this->_haanga_loaded = TRUE;
+		}
+		return Haanga::Load($view_name.'.html', $vars, TRUE);
+	}
+}
+
+$core = Vevui::get();
+
 
 error_reporting(0);
 ini_set('display_errors', 0);
@@ -64,7 +144,7 @@ include($filepath);
 //	trigger_error('Invalid class', E_USER_ERROR);
 $request_class_obj = new $request_class();
 
-if(!is_callable(array($request_class_obj, $request_method)))
+if( !is_subclass_of($request_class_obj, 'Ctrl') || !strncmp($request_method, '__', 2) || !is_callable(array($request_class_obj, $request_method)) )
 {
 	require(SYS_PATH.'/haanga/lib/Haanga.php');
 	require(SYS_PATH.'/plugins/haanga.php');

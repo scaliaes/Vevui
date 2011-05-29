@@ -19,12 +19,10 @@ class LibraryLoader
 {
 	private $_user_libraries;
 
-	function __construct($ctrl, $user = FALSE)
+	function __construct($user = FALSE)
 	{
 		$this->_user_libraries = $user;
 		require(SYS_PATH.'/core/lib.php');
-
-		Lib::$controller = & $ctrl;
     }
 
 	function __get($library_name)
