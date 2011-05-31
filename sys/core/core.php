@@ -98,11 +98,23 @@ class Vevui
 	}
 }
 
-$core = Vevui::get();
-
-
 error_reporting(0);
 ini_set('display_errors', 0);
+
+$uri = $_SERVER['REQUEST_URI'];
+
+$core = Vevui::get();
+$app = $core->e->app;
+if ($app['routing'])
+{
+	$routes = $core->e->routes;
+	foreach($routes['routes'] as $pattern=>$redir)
+	{
+		$count = 0;
+		$uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $uri, 1, $count);
+		if ($count) break;
+	}
+}
 
 function vevui_shutdown()
 {
@@ -117,7 +129,7 @@ function vevui_shutdown()
 register_shutdown_function('vevui_shutdown');
 set_error_handler('vevui_error_handler');
 
-$uri_segs = explode('/', urldecode($_SERVER['REQUEST_URI']));
+$uri_segs = explode('/', urldecode($uri));
 $uri_segs_count = count($uri_segs);
 
 $start = ($uri_segs[1] == 'index.php')?2:1;

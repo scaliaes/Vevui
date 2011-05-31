@@ -15,9 +15,9 @@
  limitations under the License.
 *************************************************************************/
 
-$config['version'] = 0;
-$config['debug'] = TRUE;
-$config['profiling'] = 0.5;
-$config['routing'] = FALSE;
+$config['routes'] = array
+	(
+		'^/sample/(.*)' => '/main/index/\\1'
+	);
 
-/* End of file app/e/app.php */
+/* End of file app/e/cache.php */
