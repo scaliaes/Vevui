@@ -31,7 +31,7 @@ class Cache extends Lib
 		}
 		$path .= '.html';
 
-		$base_path = $this->ctrl()->e->cache['path'];
+		$base_path = $this->ctrl()->e->app['cache_path'];
 		return file_get_contents($base_path.'/'.$path);
 	}
 
@@ -44,7 +44,7 @@ class Cache extends Lib
 		}
 		$path .= '.html';
 
-		$base_path = $this->ctrl()->e->cache['path'];
+		$base_path = $this->ctrl()->e->app['cache_path'];
 		return file_put_contents($base_path.'/'.$path, $content);
 	}
 }

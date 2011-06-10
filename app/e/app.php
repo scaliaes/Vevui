@@ -15,9 +15,20 @@
  limitations under the License.
 *************************************************************************/
 
-$config['version'] = 0;
+// Basic configuration
 $config['debug'] = TRUE;
 $config['profiling'] = 0.5;
 $config['routing'] = FALSE;
 
+
+// Cache system
+$config['cache_path'] = '/tmp/vevui';
+
+
+// Routing system
+$config['routes'] =	array
+	(
+		'^/sample/(.*)' => '/main/index/\\1'
+	);
+	
 /* End of file app/e/app.php */

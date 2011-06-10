@@ -107,8 +107,7 @@ $core = Vevui::get();
 $app = $core->e->app;
 if ($app['routing'])
 {
-	$routes = $core->e->routes;
-	foreach($routes['routes'] as $pattern=>$redir)
+	foreach($core->e->app['routes'] as $pattern=>$redir)
 	{
 		$count = 0;
 		$uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $uri, 1, $count);
