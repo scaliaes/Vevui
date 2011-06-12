@@ -105,7 +105,7 @@ $uri = $_SERVER['REQUEST_URI'];
 
 $core = Vevui::get();
 $app = $core->e->app;
-if ($app['routing'])
+if ($app['routes'])
 {
 	foreach($core->e->app['routes'] as $pattern=>$redir)
 	{
@@ -161,7 +161,7 @@ if( !is_subclass_of($request_class_obj, 'Ctrl') || !strncmp($request_method, '__
 	require(APP_PATH.'/e/ha.php');
 
 	Haanga::configure($config['haanga']);
-	Haanga::Load(APP_PATH.'/o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+	Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
 	exit;
 }
 
