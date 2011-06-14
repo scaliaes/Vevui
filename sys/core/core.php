@@ -96,6 +96,22 @@ class Vevui
 		}
 		return Haanga::Load($view_name.'.html', $vars, TRUE);
 	}
+
+	public function not_found()
+	{
+		if (!$this->_haanga_loaded)
+		{
+			require(SYS_PATH.'/haanga/lib/Haanga.php');
+			require(SYS_PATH.'/plugins/haanga.php');
+			$config = $this->e->ha;
+			Haanga::configure($config['haanga']);
+			$this->_haanga_loaded = TRUE;
+		}
+		
+		header("HTTP/1.0 404 Not Found");
+		Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+		exit;
+	}	
 }
 
 error_reporting(0);
@@ -156,13 +172,7 @@ $request_class_obj = new $request_class();
 
 if( !is_subclass_of($request_class_obj, 'Ctrl') || !strncmp($request_method, '__', 2) || !is_callable(array($request_class_obj, $request_method)) )
 {
-	require(SYS_PATH.'/haanga/lib/Haanga.php');
-	require(SYS_PATH.'/plugins/haanga.php');
-	require(APP_PATH.'/e/ha.php');
-
-	Haanga::configure($config['haanga']);
-	Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
-	exit;
+	$core->not_found();
 }
 
 call_user_func_array(array($request_class_obj, $request_method), $request_params);
