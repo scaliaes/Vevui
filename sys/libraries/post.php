@@ -43,15 +43,22 @@ class Post extends Lib
 		$this->_curname = $name;
 		return $this;
 	}
-	
+
 	function min($len)
 	{
 		$this->_min_len_rules[$this->_curname] = $len;
 		return $this;
 	}
-	
+
 	function max($len)
 	{
+		$this->_max_len_rules[$this->_curname] = $len;
+		return $this;		
+	}	
+
+	function len($len)
+	{
+		$this->_min_len_rules[$this->_curname] = $len;
 		$this->_max_len_rules[$this->_curname] = $len;
 		return $this;		
 	}	
@@ -69,8 +76,9 @@ class Post extends Lib
 			$name = $rule[0];
 			$required = $rule[1];
 			$funcs = $rule[2];		
-			
-			if (array_key_exists($name, $this->_post))
+
+			$post_exists = array_key_exists($name, $this->_post);
+			if ($post_exists)
 			{
 				$param = $this->_post[$name];
 				foreach($funcs as $func)
@@ -94,7 +102,7 @@ class Post extends Lib
 				$this->_post[$name] = $param;
 			}
 			
-			if ( $required && ((!array_key_exists($name, $this->_post)) || (''===$this->_post[$name])) )
+			if ( $required && ((!$post_exists) || (''===$this->_post[$name])) )
 			{
 				$this->_errors[ $name . '_error' ] = TRUE;
 			}
@@ -102,21 +110,21 @@ class Post extends Lib
 			if (array_key_exists($name, $this->_min_len_rules))
 			{
 				$minlen = $this->_min_len_rules[$name];
-				if(strlen($this->_post[$name]) < $minlen)
+				if ( (!$post_exists) || (strlen($this->_post[$name]) < $minlen) )
 					$this->_errors[ $name . '_error' ] = TRUE;
 			}
 
-			if (array_key_exists($name, $this->_max_len_rules))
+			if ($post_exists && array_key_exists($name, $this->_max_len_rules))
 			{
 				$maxlen = $this->_max_len_rules[$name];
-				if(strlen($this->_post[$name]) > $maxlen)
+				if (strlen($this->_post[$name]) > $maxlen)
 					$this->_errors[ $name . '_error' ] = TRUE;
 			}
 			
 			if (array_key_exists($name, $this->_valid_mail_rules))
 			{
-				$regexp = "/^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[.][A-z]{2,4}$/";
-				if (!preg_match($regexp, $this->_post[$name]))
+				$regexp = '^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[.][A-z]{2,4}$';
+				if ( (!$post_exists) || (!preg_match($regexp, $this->_post[$name])) )
 					$this->_errors[ $name . '_error' ] = TRUE;
 			}
 		}

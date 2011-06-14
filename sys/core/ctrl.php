@@ -29,7 +29,7 @@ class Ctrl
 
 	function  __construct()
 	{
-		$this->_core = Vevui::get();
+		$this->_core = & Vevui::get();
 
 		$config = $this->e->app;
 

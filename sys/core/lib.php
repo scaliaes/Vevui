@@ -16,7 +16,18 @@
 *************************************************************************/
 
 class Lib
-{
+{	
+	private $_core;
+
+	function  __construct()
+	{
+		$this->_core = & Vevui::get();
+	}
+
+	function __get($prop_name)
+	{
+		return $this->{$prop_name} = $this->_core->{$prop_name};
+	}
 }
 
 /* End of file sys/core/lib.php */

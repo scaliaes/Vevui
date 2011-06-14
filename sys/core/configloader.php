@@ -23,7 +23,7 @@ class ConfigLoader
 
 	function __get($config_name)
 	{
-		include(APP_PATH.'/e/'.$config_name.'.php');
+		require(APP_PATH.'/e/'.$config_name.'.php');
 		return $this->{$config_name} = $config;
 	}
 }

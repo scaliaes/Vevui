@@ -15,29 +15,18 @@
  limitations under the License.
 *************************************************************************/
 
-class Helper
+class Client extends Lib
 {
-	function __call($name, $args)
+	function __get($name)
 	{
-		return call_user_func_array($name, $args);
+		switch($name)
+		{
+			case 'ip':
+				return $this->ip = $_SERVER['REMOTE_ADDR'];
+			case 'ua':
+				return $this->ua = $_SERVER['HTTP_USER_AGENT'];
+		}
 	}
 }
 
-class HelperLoader
-{
-	private $_user_helpers;
-
-	function __construct($user = FALSE)
-	{
-		$this->_user_helpers = $user;
-	}
-
-	function __get($helper_name)
-	{
-		$folder = $this->_user_helpers?APP_PATH.'/h/':SYS_PATH.'/helpers/';
-		require($folder.$helper_name.'.php');
-		return $this->{$helper_name} = new Helper();
-	}
-}
-
-/* End of file sys/core/helperloader.php */
+/* End of file sys/libraries/client.php */

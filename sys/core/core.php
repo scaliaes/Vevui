@@ -62,6 +62,7 @@ class Vevui
 				if (!$this->_library_loader_loaded)
 				{
 					require(SYS_PATH.'/core/libraryloader.php');
+					require(SYS_PATH.'/core/lib.php');
 					$this->_library_loader_loaded = TRUE;
 				}
 				return $this->l = new LibraryLoader();
@@ -76,6 +77,7 @@ class Vevui
 				if (!$this->_library_loader_loaded)
 				{
 					require(SYS_PATH.'/core/libraryloader.php');
+					require(SYS_PATH.'/core/lib.php');
 					$this->_library_loader_loaded = TRUE;
 				}
 				return $this->ml = new LibraryLoader(TRUE);
@@ -115,11 +117,10 @@ class Vevui
 }
 
 error_reporting(0);
-ini_set('display_errors', 0);
 
 $uri = $_SERVER['REQUEST_URI'];
 
-$core = Vevui::get();
+$core = & Vevui::get();
 $app = $core->e->app;
 if ($app['routes'])
 {
@@ -152,7 +153,7 @@ $request_method = 'index';
 $request_params = array();
 
 if ($uri_segs[$start])
-	$request_class = strtolower(preg_replace( array("/[^a-z0-9]/i","/[_]+/") , "_", $uri_segs[$start]));
+	$request_class = strtolower(preg_replace( array('/[^a-z0-9]/i','/[_]+/') , '_', $uri_segs[$start]));
 
 ++$start;
 if ($start < $uri_segs_count)
@@ -165,7 +166,7 @@ if ($start < $uri_segs_count)
 
 $filepath = APP_PATH.'/c/'.$request_class.'.php';
 
-include($filepath);
+require($filepath);
 //if (!is_subclass_of($request_class, 'Ctrl'))
 //	trigger_error('Invalid class', E_USER_ERROR);
 $request_class_obj = new $request_class();

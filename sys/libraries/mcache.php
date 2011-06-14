@@ -15,29 +15,35 @@
  limitations under the License.
 *************************************************************************/
 
-class Helper
+class Mcache extends Lib
 {
-	function __call($name, $args)
+	private $_conn;
+
+	function  __construct()
 	{
-		return call_user_func_array($name, $args);
+		$servers = array();
+		foreach($this->e->mcache['servers'] as $server)
+		{
+			$servers[] = array($server['host'], $server['port'], $server['weight']);
+		}
+		$this->_conn = new Memcache();
+		$this->_conn->addServers($servers);
+	}
+
+	function __get($name)
+	{
+		return $this->_conn->get($name);
+	}
+
+	function set($name, $value, $expiration = 0)
+	{
+		return $this->_conn->set($name, $value, $expiration = 0);
+	}
+
+	function __set($name, $value)
+	{
+		return $this->set($name, $value, 0);
 	}
 }
 
-class HelperLoader
-{
-	private $_user_helpers;
-
-	function __construct($user = FALSE)
-	{
-		$this->_user_helpers = $user;
-	}
-
-	function __get($helper_name)
-	{
-		$folder = $this->_user_helpers?APP_PATH.'/h/':SYS_PATH.'/helpers/';
-		require($folder.$helper_name.'.php');
-		return $this->{$helper_name} = new Helper();
-	}
-}
-
-/* End of file sys/core/helperloader.php */
+/* End of file sys/libraries/mcache.php */
