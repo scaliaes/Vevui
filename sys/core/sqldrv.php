@@ -195,12 +195,13 @@ abstract class SQLDrv
 
 	protected function _raise_error($error_string)
 	{
-		// TODO: store error_string in error database and
-		// don't access $debug throught global vars
-		global $debug;		
-		if(TRUE === $debug)
+		$core = Vevui::get();
+		
+		// TODO: store error_string in error database
+		if($core->e->app['debug'])
 			echo '<p>'.$error_string.'</p>';
-			
+
+		header('HTTP/1.0 500 Internal Server Error');	
 		include(APP_PATH.'/o/db.html');		
 		exit;
 	}
