@@ -92,6 +92,11 @@ class Ctrl
 		$this->_cache_params = & $params;
 	}
 
+	protected function not_found()
+	{
+		$this->_core->not_found();
+	}
+	
 	function __destruct()
 	{
 		if ($this->_cache_result)
