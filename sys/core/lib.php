@@ -19,14 +19,14 @@ class Lib
 {	
 	private $_core;
 
-	function  __construct()
+	function __construct()
 	{
 		$this->_core = & Vevui::get();
 	}
 
 	function __get($prop_name)
 	{
-		return $this->{$prop_name} = $this->_core->{$prop_name};
+		return $this->{$prop_name} = & $this->_core->{$prop_name};
 	}
 }
 

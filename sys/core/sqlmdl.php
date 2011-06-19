@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-class Mdl
+class SqlMdl
 {
 	private static $_drivers = array();
 	private $_core;
@@ -45,7 +45,7 @@ class Mdl
 		else
 		{
 			$drv = $db_config_value['drv'];
-			require_once(SYS_PATH.'/core/drv.php');
+			require_once(SYS_PATH.'/core/sqldrv.php');
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 			$this->_drv = self::$_drivers[$db_config_key] = new $drv($db_config_value);
 		}
@@ -55,6 +55,16 @@ class Mdl
 	{
 		return $this->_drv->new_query($name);
 	}
+
+	protected function last_id()
+	{
+		return $this->_drv->last_id();
+	}
+
+	protected function affected_rows()
+	{
+		return $this->_drv->affected_rows();
+	}
 }
 
-/* End of file sys/core/mdl.php */
+/* End of file sys/core/sqlmdl.php */

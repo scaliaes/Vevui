@@ -19,7 +19,7 @@ class ConfigLoader
 {
 	function __construct()
 	{
-    }
+	}
 
 	function __get($config_name)
 	{

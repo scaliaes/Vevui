@@ -30,19 +30,14 @@ class Mcache extends Lib
 		$this->_conn->addServers($servers);
 	}
 
-	function __get($name)
+	function get($name)
 	{
 		return $this->_conn->get($name);
 	}
 
 	function set($name, $value, $expiration = 0)
 	{
-		return $this->_conn->set($name, $value, $expiration = 0);
-	}
-
-	function __set($name, $value)
-	{
-		return $this->set($name, $value, 0);
+		return $this->_conn->set($name, $value, $expiration);
 	}
 }
 

@@ -19,12 +19,22 @@ class ModelLoader
 {
 	function __construct()
 	{
-		require(SYS_PATH.'/core/mdl.php');
-    }
+		$core = & Vevui::get();
+		$sqlmdls = array('mysql');
+		$nosqlmdls = array('mongo');
+		$loadsqlmdl = $loadnosqlmdl = FALSE;
+		foreach($core->e->db as $db)
+		{
+			if (!$loadsqlmdl && array_search($db['drv'], $sqlmdls)) $loadsqlmdl = TRUE;
+			else if (!$loadnosqlmdl && array_search($db['drv'], $nosqlmdls)) $loadnosqlmdl = TRUE;
+		}
+		if ($loadsqlmdl) require(SYS_PATH.'/core/sqlmdl.php');
+		if ($loadnosqlmdl) require(SYS_PATH.'/core/mdl.php');
+	}
 
 	function __get($model_name)
 	{
-		include(APP_PATH.'/m/'.$model_name.'.php');
+		require(APP_PATH.'/m/'.$model_name.'.php');
 		return $this->{$model_name} = new $model_name();
 	}
 }

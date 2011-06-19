@@ -22,7 +22,7 @@ class LibraryLoader
 	function __construct($user = FALSE)
 	{
 		$this->_user_libraries = $user;
-    }
+	}
 
 	function __get($library_name)
 	{

@@ -39,7 +39,7 @@ class Vevui
 		return self::$_core;
 	}
 
-	protected function  __construct()
+	protected function __construct()
 	{
 		$this->e = new ConfigLoader();
 	}

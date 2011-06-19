@@ -55,7 +55,8 @@ abstract class SQLDrv
 		$this->_raw_query = $this->_protect = NULL;
 		$this->_fields = $this->_joins = $this->_conds = $this->_group = $this->_having = $this->_limit = $this->_offset = NULL;
 		$this->_order = NULL;
-    }
+		return $this;
+	}
 
 	function raw($query, $protect = array())
 	{
@@ -195,7 +196,7 @@ abstract class SQLDrv
 
 	protected function _raise_error($error_string)
 	{
-		$core = Vevui::get();
+		$core = & Vevui::get();
 		
 		// TODO: store error_string in error database
 		if($core->e->app['debug'])

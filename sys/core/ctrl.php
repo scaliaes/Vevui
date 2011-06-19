@@ -27,7 +27,7 @@ class Ctrl
 	private $_cache_params = NULL;
 	private $_cache_content = '';
 
-	function  __construct()
+	function __construct()
 	{
 		$this->_core = & Vevui::get();
 
@@ -69,7 +69,7 @@ class Ctrl
 				header('HTTP/1.1 301 Moved Permanently');
 				break;
 			case 302:
-				header("HTTP/1.1 302 Moved Temporarily"); 
+				header("HTTP/1.1 302 Moved Temporarily");
 				break;
 			default:
 				break;

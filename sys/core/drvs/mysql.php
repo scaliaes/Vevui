@@ -65,7 +65,7 @@ class MySQL extends SQLDrv
 			case self::SQL_DELETE:
 				return $this->_delete();
 			default:
-				$this->_raise_error("Unknown query type {$this->_type}.");
+				$this->_raise_error('Unknown query type '.$this->_type);
 		}
 	}
 
