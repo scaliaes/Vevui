@@ -86,6 +86,13 @@ class Vevui
 		}
 	}
 
+	public function crender($view_name, $vars = array())
+	{
+		$output = $this->render($view_name, $vars, FALSE);
+		$this->l->cache->set($_SERVER['REQUEST_URI'], $output);
+		echo $output;
+	}
+	
 	public function render($view_name, $vars = array(), $print_output = TRUE)
 	{
 		if (!$this->_haanga_loaded)
@@ -109,28 +116,15 @@ class Vevui
 			Haanga::configure($config['haanga']);
 			$this->_haanga_loaded = TRUE;
 		}
-		
+
 		header("HTTP/1.0 404 Not Found");
 		Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
 		exit;
 	}	
 }
 
+// Error handlers
 error_reporting(0);
-
-$uri = $_SERVER['REQUEST_URI'];
-
-$core = & Vevui::get();
-$app = $core->e->app;
-if ($app['routes'])
-{
-	foreach($core->e->app['routes'] as $pattern=>$redir)
-	{
-		$count = 0;
-		$uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $uri, 1, $count);
-		if ($count) break;
-	}
-}
 
 function vevui_shutdown()
 {
@@ -144,6 +138,42 @@ function vevui_shutdown()
 register_shutdown_function('vevui_shutdown');
 set_error_handler('vevui_error_handler');
 
+
+$core = & Vevui::get();
+$app = $core->e->app;
+$uri = $_SERVER['REQUEST_URI'];
+
+
+// Check if query string is activated
+if($app['query_string'])
+{
+	if(FALSE !== ($query_pos = strpos($uri, '?')))
+	{
+		$query_string = substr($uri, $query_pos + 1);
+		$uri = substr($uri, 0, $query_pos);
+		
+		// Check if query string character set is valid
+		if(!preg_match('/^[=&'.$app['url_chars'].']+$/i', $query_string))
+			$core->not_found();
+	}
+}
+
+
+// Apply URI Routing rules
+if (array_key_exists('routes', $app))
+{
+	foreach($app['routes'] as $pattern=>$redir)
+	{
+		$count = 0;
+		$uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $uri, 1, $count);
+		if ($count) break;
+	}
+}
+
+// Check if URI character set is valid
+if(!preg_match('/^[\/'.$app['url_chars'].']+$/i', $uri))
+	$core->not_found();
+			
 $uri_segs = explode('/', urldecode($uri));
 $uri_segs_count = count($uri_segs);
 
@@ -153,7 +183,7 @@ $request_method = 'index';
 $request_params = array();
 
 if ($uri_segs[$start])
-	$request_class = strtolower(preg_replace( array('/[^a-z0-9]/i','/[_]+/') , '_', $uri_segs[$start]));
+	$request_class = strtolower($uri_segs[$start]);
 
 ++$start;
 if ($start < $uri_segs_count)
@@ -164,11 +194,10 @@ if ($start < $uri_segs_count)
 	$request_params = array_slice($uri_segs, $start+1);
 }
 
+// Call controller/method
 $filepath = APP_PATH.'/c/'.$request_class.'.php';
 
 require($filepath);
-//if (!is_subclass_of($request_class, 'Ctrl'))
-//	trigger_error('Invalid class', E_USER_ERROR);
 $request_class_obj = new $request_class();
 
 if( !is_subclass_of($request_class_obj, 'Ctrl') || !strncmp($request_method, '__', 2) || !is_callable(array($request_class_obj, $request_method)) )

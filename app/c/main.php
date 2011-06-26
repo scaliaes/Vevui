@@ -4,6 +4,7 @@ class Main extends Ctrl
 {
 	function index()
 	{
-		$this->render('main_index');
+		$data['app'] = array('name' => 'Vevui First App');
+		$this->render('main_index', $data);
 	}
 }

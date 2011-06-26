@@ -34,10 +34,9 @@ $default_controller = 'main';
 
 define('VEVUI_VERSION', '0.1a');
 
-$dirname_path = dirname(__FILE__);
-
-define('SYS_PATH', $dirname_path.'/'.$sys_path);
-define('APP_PATH', $dirname_path.'/'.$app_path);
+define('ROOT_PATH', __DIR__.'/..');
+define('SYS_PATH', __DIR__.'/'.$sys_path);
+define('APP_PATH', __DIR__.'/'.$app_path);
 
 require(SYS_PATH.'/core/core.php');
 

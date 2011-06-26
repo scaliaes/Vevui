@@ -3,7 +3,7 @@
 	<title>{{ title|default:'Hello world' }}</title>
 </head>
 <body>
-	<h1>Welcome to {{ app.name }}!</h1>
+	<h1>Welcome to {{ app['name'] }}!</h1>
 	<p>Page rendered in {% elapsedtime %} s.</p>
 </body>
 </html>

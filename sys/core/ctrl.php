@@ -22,11 +22,6 @@ class Ctrl
 	private $_profiling;
 	private $_profile_this;
 
-	private $_cache_result = FALSE;
-	private $_cache_name = NULL;
-	private $_cache_params = NULL;
-	private $_cache_content = '';
-
 	function __construct()
 	{
 		$this->_core = & Vevui::get();
@@ -50,17 +45,17 @@ class Ctrl
 	protected function render($view_name, $vars = array(), $print_output = TRUE)
 	{
 		$output = $this->_core->render($view_name, $vars, $print_output);
-		if ($this->_cache_result)
-		{
-			$this->_cache_content .= $output;
-		}
-
 		if($print_output)
 			echo $output;
 		else
 			return $output;
 	}
 
+	protected function crender($view_name, $vars = array())
+	{
+		$this->_core->crender($view_name, $vars);
+	}
+	
 	protected function redir($location, $code = 301)
 	{
 		switch($code)
@@ -77,19 +72,6 @@ class Ctrl
 		
 		header('Location: '.$location);
 		exit;
-	}
-	
-	protected function cache($name, $_ = NULL)
-	{
-		$params = array_slice(func_get_args(), 1);
-		$cache = $this->l->cache->get($name, $params);
-		if (is_string($cache))
-		{
-			die($cache);
-		}
-		$this->_cache_result = TRUE;
-		$this->_cache_name = $name;
-		$this->_cache_params = & $params;
 	}
 
 	protected function not_found()

@@ -17,15 +17,23 @@
 
 // Basic configuration
 $config['debug'] = TRUE;
-$config['profiling'] = 0.5;
-$config['routing'] = FALSE;
+$config['profiling'] = 0.15;
+
+
+// Allowed chars in URI (case insensitive, PCRE style)
+// Warning: changing this value may be dangerous, the character '-' must be at the end or escaped
+$config['url_chars'] = 'a-z0-9_-';
+
+
+// Allow query string in URI
+$config['query_string'] = TRUE;
 
 
 // Cache system
-$config['cache_path'] = '/tmp/vevui';
+$config['cache_path'] = ROOT_PATH.'/cache';
 
 
-// Routing system
+// Routing system (case insensitive, PCRE style)
 $config['routes'] =	array
 	(
 		'^/sample/(.*)' => '/main/index/\\1'
