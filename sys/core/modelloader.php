@@ -23,10 +23,13 @@ class ModelLoader
 		$sqlmdls = array('mysql');
 		$nosqlmdls = array('mongo');
 		$loadsqlmdl = $loadnosqlmdl = FALSE;
-		foreach($core->e->db as $db)
+		foreach($core->e->db as $db_entry)
 		{
-			if (!$loadsqlmdl && array_search($db['drv'], $sqlmdls)) $loadsqlmdl = TRUE;
-			else if (!$loadnosqlmdl && array_search($db['drv'], $nosqlmdls)) $loadnosqlmdl = TRUE;
+			foreach($db_entry as $db)
+			{
+				if (!$loadsqlmdl && (FALSE !== array_search($db['drv'], $sqlmdls))) $loadsqlmdl = TRUE;
+				else if (!$loadnosqlmdl && (FALSE !== array_search($db['drv'], $nosqlmdls))) $loadnosqlmdl = TRUE;
+			}
 		}
 		if ($loadsqlmdl) require(SYS_PATH.'/core/sqlmdl.php');
 		if ($loadnosqlmdl) require(SYS_PATH.'/core/mdl.php');
