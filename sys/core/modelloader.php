@@ -20,17 +20,29 @@ class ModelLoader
 	function __construct()
 	{
 		$core = & Vevui::get();
-		$sqlmdls = array('mysql' => TRUE);
-		$nosqlmdls = array('mongodb' => TRUE);
-		$loadsqlmdl = $loadnosqlmdl = FALSE;
+		$loadnosqlmdl = $loadsqlmdl = FALSE;
 
 		foreach($core->e->db['db'] as $db)
 		{
-			if (!$loadsqlmdl && array_key_exists($db['drv'], $sqlmdls)) $loadsqlmdl = TRUE;
-			else if (!$loadnosqlmdl && array_key_exists($db['drv'], $nosqlmdls)) $loadnosqlmdl = TRUE;
+			if (!$loadnosqlmdl)
+			{
+				switch($db['drv'])
+				{
+					case 'mongodb':
+						$loadnosqlmdl = TRUE;
+				}
+			}
+			if (!$loadsqlmdl)
+			{
+				switch($db['drv'])
+				{
+					case 'mysql':
+						$loadsqlmdl = TRUE;
+				}
+			}
 		}
-		if ($loadsqlmdl) require(SYS_PATH.'/core/sqlmdl.php');
 		if ($loadnosqlmdl) require(SYS_PATH.'/core/mdl.php');
+		if ($loadsqlmdl) require(SYS_PATH.'/core/sqlmdl.php');
 	}
 
 	function __get($model_name)

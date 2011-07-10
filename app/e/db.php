@@ -23,11 +23,17 @@ $config['db'] = array
 				'host' => 'localhost',
 				'user' => 'dbuser',
 				'pass' => 'changeme',
-				'db' => 'api',
+				'db' => 'test',
 				'char' => 'UTF8'
+			),
+		'mymongo' => array
+			(
+				'drv' => 'mongodb',
+				'host' => 'localhost',
+				'db' => 'test'
 			)
 	);
 
-$config['default_schema'] = 'mydb';
+$config['default_schema'] = 'mymongo';
 
 /* End of file app/e/db.php */

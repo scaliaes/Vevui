@@ -26,7 +26,7 @@ class Mcache extends Lib
 		{
 			$servers[] = array($server['host'], $server['port'], $server['weight']);
 		}
-		$this->_conn = new Memcache();
+		$this->_conn = new Memcached();
 		$this->_conn->addServers($servers);
 	}
 
