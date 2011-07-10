@@ -18,14 +18,15 @@
 abstract class Drv
 {
 	const DRV_UNDEFINED = 0;
-	const DRV_INSERT = 1;
-	const DRV_SELECT = 2;
-	const DRV_UPDATE = 3;
-	const DRV_DELETE = 4;
+	const DRV_RAW = 1;
+	const DRV_INSERT = 2;
+	const DRV_SELECT = 3;
+	const DRV_UPDATE = 4;
+	const DRV_DELETE = 5;
 
 	protected $_type;
 	protected $_connection;
-	protected $_collection;
+	protected $_collection_name;
 
 	protected $_documents;
 	protected $_conditions;
@@ -34,7 +35,7 @@ abstract class Drv
 	function new_query($name)
 	{
 		$this->_type = self::DRV_UNDEFINED;
-		$this->_collection = $name;
+		$this->_collection_name = $name;
 		return $this;
 	}
 

@@ -30,6 +30,9 @@ class Vevui
 	private $_helper_loader_loaded = FALSE;
 	private $_library_loader_loaded = FALSE;
 
+	private $_track_errors = TRUE;
+	private $_debug = FALSE;
+
 	static public function & get()
 	{
 		if (is_null(self::$_core))
@@ -39,9 +42,135 @@ class Vevui
 		return self::$_core;
 	}
 
+	public function shutdown()
+	{
+		$error = error_get_last();
+		if ($error)
+		{
+			switch($error['type'])
+			{
+				case E_ERROR:		
+				case E_PARSE:
+				case E_CORE_ERROR:
+				case E_COMPILE_ERROR:
+				case E_USER_ERROR:
+				case E_PARSE:
+				case E_RECOVERABLE_ERROR:
+					$this->_shutdown_error_handler($error);
+			}
+		}
+	}
+
+	public function exception_handler($exception)
+	{
+		
+	}
+
+	public function error_handler($errno, $errstr, $errfile, $errline)
+	{
+		switch($errno)
+		{
+			case E_ERROR:		
+			case E_PARSE:
+			case E_CORE_ERROR:
+			case E_COMPILE_ERROR:
+			case E_USER_ERROR:
+			case E_PARSE:
+			case E_RECOVERABLE_ERROR:
+				die();
+				break;
+			case E_WARNING:			
+			case E_NOTICE:			
+			case E_CORE_WARNING:
+			case E_COMPILE_WARNING:
+			case E_USER_WARNING:		
+			case E_USER_NOTICE:
+			case E_STRICT:		
+			case E_DEPRECATED:
+			case E_USER_DEPRECATED:		
+				if(FALSE === $this->_debug)
+				{
+					die();
+				}
+				else
+				{
+					echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
+					$error = array
+					(
+						'type' => $errno,
+						'message' => $errstr,
+						'file' => $errfile,
+						'line' => $errline
+					);
+					echo '<pre>EH: '; print_r($error); echo '</pre></div>';
+				}
+				break;
+		}
+	}
+
+	private function _shutdown_error_handler($error)
+	{
+		header('HTTP/1.0 500 Internal Server Error');
+
+		echo 'Ha ocurrido un error interno, disculpen las molestias';
+
+		if($this->_debug)
+		{
+			echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
+			echo '<pre> SE:'; print_r($error); echo '</pre>';
+
+			$file_contents = file_get_contents($error['file']);
+			$nlines = count(file($error['file']));
+			$range = range(max(1, $error['line']-5), min($nlines, $error['line']+5));
+			$lines_array = preg_split('/<[ ]*br[ ]*\/[ ]*>/', highlight_string($file_contents, TRUE));
+			$highlighted = '';
+			$line_nums = '';
+			foreach($range as $i)
+			{
+				if ($i == ($error['line']))
+				{
+					$line_nums .= '<div style="background-color: #ff9999">';
+		//				$highlighted .= '<div style="background-color: #ff9999">';
+				}
+				$line_nums .= $i.'<br/>';
+				$highlighted .= $lines_array[$i-1].'<br/>';
+				if ($i == ($error['line']))
+				{
+					$line_nums .= '</div>';
+		//				$highlighted .= '</div>';
+				}
+			}
+			echo '<style type="text/css">
+							.num {
+							float: left;
+							color: gray;
+		//						font-size: 13px;
+		//						font-family: monospace;
+							text-align: right;
+							margin-right: 6pt;
+							padding-right: 6pt;
+							border-right: 1px solid gray;}
+
+							body {margin: 0px; margin-left: 5px;}
+							td {vertical-align: top;}
+							code {white-space: nowrap;}
+						</style>',
+					"<table><tr><td class=\"num\">\n$line_nums\n</td><td>\n$highlighted\n</td></tr></table>";
+		}
+		else
+		{
+			// TODO: Log in sqlite
+		}
+	}
+
 	protected function __construct()
 	{
+		register_shutdown_function(array($this, 'shutdown'));
+		set_error_handler(array($this, 'error_handler'));
+		set_exception_handler(array($this, 'exception_handler'));
+
 		$this->e = new ConfigLoader();
+		$this->_debug = $this->e->app['debug'];
 	}
 
 	public function __get($prop_name)
@@ -120,24 +249,23 @@ class Vevui
 		header("HTTP/1.0 404 Not Found");
 		Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
 		exit;
-	}	
+	}
+
+	public function disable_errors()
+	{
+		restore_error_handler();
+		restore_exception_handler();
+	}
+
+	public function enable_errors()
+	{
+		set_error_handler(array($this, 'error_handler'));
+		set_exception_handler(array($this, 'exception_handler'));
+	}
 }
 
 // Error handlers
 error_reporting(0);
-
-function vevui_shutdown()
-{
-	$error = error_get_last();
-	if ($error)
-	{
-		vevui_shutdown_error_handler($error);
-	}
-}
-
-register_shutdown_function('vevui_shutdown');
-set_error_handler('vevui_error_handler');
-
 
 $core = & Vevui::get();
 $app = $core->e->app;
@@ -206,110 +334,5 @@ if( !is_subclass_of($request_class_obj, 'Ctrl') || !strncmp($request_method, '__
 }
 
 call_user_func_array(array($request_class_obj, $request_method), $request_params);
-
-function vevui_error_handler($errno, $errstr, $errfile, $errline)
-{
-	$debug = Vevui::get()->e->app['debug'];
-	
-	switch($errno)
-	{
-		case E_ERROR:		
-		case E_PARSE:
-		case E_CORE_ERROR:
-		case E_COMPILE_ERROR:
-		case E_USER_ERROR:
-		case E_PARSE:
-		case E_RECOVERABLE_ERROR:
-			die();
-			break;
-		case E_WARNING:			
-		case E_NOTICE:			
-		case E_CORE_WARNING:
-		case E_COMPILE_WARNING:
-		case E_USER_WARNING:		
-		case E_USER_NOTICE:
-		case E_STRICT:		
-		case E_DEPRECATED:
-		case E_USER_DEPRECATED:		
-			if(FALSE === $debug)
-			{
-				die();
-			}
-			else
-			{
-				echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
-				$error = array
-				(
-					'type' => $errno,
-					'message' => $errstr,
-					'file' => $errfile,
-					'line' => $errline
-				);
-				echo '<pre>EH: '; print_r($error); echo '</pre></div>';
-			}
-			break;
-	}
-
-}
-
-function vevui_shutdown_error_handler($error)
-{
-
-	$debug = Vevui::get()->e->app['debug'];
-	
-	header('HTTP/1.0 500 Internal Server Error');
-	
-	echo 'Ha ocurrido un error interno, disculpen las molestias';
-	
-	if($debug)
-	{
-		echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
-		echo '<pre> SE:'; print_r($error); echo '</pre>';
-	
-		
-		$file_contents = file_get_contents($error['file']);
-		$nlines = count(file($error['file']));
-		$range = range(max(1, $error['line']-5), min($nlines, $error['line']+5));
-		$lines_array = preg_split('/<[ ]*br[ ]*\/[ ]*>/', highlight_string($file_contents, TRUE));
-		$highlighted = '';
-		$line_nums = '';
-		foreach($range as $i)
-		{
-			if ($i == ($error['line']))
-			{
-				$line_nums .= '<div style="background-color: #ff9999">';
-	//				$highlighted .= '<div style="background-color: #ff9999">';
-			}
-			$line_nums .= $i.'<br/>';
-			$highlighted .= $lines_array[$i-1].'<br/>';
-			if ($i == ($error['line']))
-			{
-				$line_nums .= '</div>';
-	//				$highlighted .= '</div>';
-			}
-		}
-		echo '<style type="text/css">
-						.num {
-						float: left;
-						color: gray;
-	//						font-size: 13px;
-	//						font-family: monospace;
-						text-align: right;
-						margin-right: 6pt;
-						padding-right: 6pt;
-						border-right: 1px solid gray;}
-
-						body {margin: 0px; margin-left: 5px;}
-						td {vertical-align: top;}
-						code {white-space: nowrap;}
-					</style>',
-				"<table><tr><td class=\"num\">\n$line_nums\n</td><td>\n$highlighted\n</td></tr></table>";
-	}
-	else
-	{
-		// TODO: Log in sqlite
-	}
-
-}
 
 /* End of file sys/core/core.php */

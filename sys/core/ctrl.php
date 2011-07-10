@@ -78,7 +78,17 @@ class Ctrl
 	{
 		$this->_core->not_found();
 	}
-	
+
+	function disable_errors()
+	{
+		$this->_core->disable_errors();
+	}
+
+	function enable_errors()
+	{
+		$this->_core->enable_errors();
+	}
+
 	function __destruct()
 	{
 		if ($this->_cache_result)

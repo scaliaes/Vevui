@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-class MySQL extends SQLDrv
+class Drv_MySQL extends SQLDrv
 {
 	function __construct($db_config)
 	{

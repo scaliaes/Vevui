@@ -28,6 +28,16 @@ class Lib
 	{
 		return $this->{$prop_name} = & $this->_core->{$prop_name};
 	}
+
+	function disable_errors()
+	{
+		$this->_core->disable_errors();
+	}
+
+	function enable_errors()
+	{
+		$this->_core->enable_errors();
+	}
 }
 
 /* End of file sys/core/lib.php */

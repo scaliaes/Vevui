@@ -47,13 +47,24 @@ class Mdl
 			$drv = $db_config_value['drv'];
 			require_once(SYS_PATH.'/core/drv.php');
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
-			$this->_drv = self::$_drivers[$db_config_key] = new $drv($db_config_value);
+			$class = 'Drv_'.$drv;
+			$this->_drv = self::$_drivers[$db_config_key] = new $class($db_config_value);
 		}
 	}
 
 	function __get($name)
 	{
 		return $this->_drv->new_query($name);
+	}
+
+	function disable_errors()
+	{
+		$this->_core->disable_errors();
+	}
+
+	function enable_errors()
+	{
+		$this->_core->enable_errors();
 	}
 }
 
