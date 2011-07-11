@@ -65,6 +65,8 @@ class Drv_MongoDB extends Drv
 					return $this->_update();
 				case self::DRV_DELETE:
 					return $this->_delete();
+				case self::DRV_MAPREDUCE:
+					return $this->_mapreduce();
 				default:
 					$this->_raise_error('Unknown query type '.$this->_type);
 			}
@@ -105,6 +107,23 @@ class Drv_MongoDB extends Drv
 	{
 		$this->_current_collection->remove($this->_conditions);
 		return TRUE;
+	}
+
+	function _mapreduce()
+	{
+		$q = $this->_db->command(array
+			(
+				'mapreduce' => $this->_collection_name,
+				'map' => new MongoCode($this->_map),
+				'reduce' => new MongoCode($this->_reduce),
+				'out' => array
+					(
+						'inline' => 1
+					)
+			));
+		if (!$q['ok'])
+			$this->_raise_error($q['errmsg']);
+		return $q['results'];
 	}
 }
 

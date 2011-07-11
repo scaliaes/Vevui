@@ -63,7 +63,22 @@ class Vevui
 
 	public function exception_handler($exception)
 	{
-		
+		if(FALSE === $this->_debug)
+		{
+			die();
+		}
+		else
+		{
+			echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
+			$error = array
+			(
+				'type' => $exception->getCode(),
+				'message' => $exception->getMessage(),
+				'file' => $exception->getFile(),
+				'line' => $exception->getLine()
+			);
+			echo '<pre>EH: '; print_r($exception); echo '</pre></div>';
+		}
 	}
 
 	public function error_handler($errno, $errstr, $errfile, $errline)

@@ -23,6 +23,7 @@ abstract class Drv
 	const DRV_SELECT = 3;
 	const DRV_UPDATE = 4;
 	const DRV_DELETE = 5;
+	const DRV_MAPREDUCE = 6;
 
 	protected $_type;
 	protected $_connection;
@@ -31,6 +32,9 @@ abstract class Drv
 	protected $_documents;
 	protected $_conditions;
 	protected $_fields;
+
+	protected $_map;
+	protected $_reduce;
 
 	function new_query($name)
 	{
@@ -66,6 +70,14 @@ abstract class Drv
 	{
 		$this->_type = self::DRV_DELETE;
 		$this->_conditions = $conditions;
+		return $this;
+	}
+
+	function mapreduce($map, $reduce)
+	{
+		$this->_type = self::DRV_MAPREDUCE;
+		$this->_map = $map;
+		$this->_reduce = $reduce;
 		return $this;
 	}
 
