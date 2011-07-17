@@ -190,26 +190,26 @@ class Vevui
 			{
 				$db = @new SQLite3($app['log_errors']);
 				$values = array();
-				$values['file'] = '"'.$db->escapeString($file).'"';
+				$values['file'] = "'".$db->escapeString($file)."'";
 				$values['line'] = (int) $line;
 				$values['type'] = (int) $type;
-				$values['message'] = '"'.$db->escapeString($message).'"';
+				$values['message'] = "'".$db->escapeString($message)."'";
 
 				$time = time();
 				$sqltime = date('Y-m-d H:i:s', $time);
-				$values['timestamp'] = '"'.$sqltime.'"';
-				$values['last_timestamp'] = '"'.$sqltime.'"';
+				$values['timestamp'] = "'".$sqltime."'";
+				$values['last_timestamp'] = "'".$sqltime."'";
 				$values['slice'] = (int) ($time & 0xffffff00);
 				$values['count'] = 0;
 
-				$values['class'] = '"'.$db->escapeString($this->_request_class).'"';
-				$values['method'] = '"'.$db->escapeString($this->_request_method).'"';
+				$values['class'] = "'".$db->escapeString($this->_request_class)."'";
+				$values['method'] = "'".$db->escapeString($this->_request_method)."'";
 
 				$input = array();
 				if ($_GET) $input['_GET'] = $_GET;
 				if ($_POST) $input['_POST'] = $_POST;
 				if ($_COOKIE) $input['_COOKIE'] = $_COOKIE;
-				$values['input'] = '"'.$db->escapeString(serialize($input)).'"';
+				$values['input'] = "'".$db->escapeString(serialize($input))."'";
 
 				$sql = 'INSERT OR IGNORE INTO errors ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
 				if (@$db->exec($sql))
