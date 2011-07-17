@@ -18,20 +18,20 @@
 // Basic configuration
 $config['debug'] = TRUE;
 $config['profiling'] = 0.15;
+$config['log_errors'] = ROOT_PATH.'/data/errors.db';	// Leave blank or comment out to disable.
 
+// Controller loaded by default
+$config['default_controller'] = 'main'; 
 
 // Allowed chars in URI (case insensitive, PCRE style)
 // Warning: changing this value may be dangerous, the character '-' must be at the end or escaped
 $config['url_chars'] = 'a-z0-9_-';
 
-
 // Allow query string in URI
-$config['query_string'] = TRUE;
-
+$config['query_string'] = FALSE;
 
 // Cache system
 $config['cache_path'] = ROOT_PATH.'/cache';
-
 
 // Routing system (case insensitive, PCRE style)
 $config['routes'] =	array

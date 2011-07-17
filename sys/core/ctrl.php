@@ -91,10 +91,10 @@ class Ctrl
 
 	function __destruct()
 	{
-		if ($this->_cache_result)
-		{
-			$this->l->cache->set($this->_cache_content, $this->_cache_name, $this->_cache_params);
-		}
+//		if ($this->_cache_result)
+//		{
+//			$this->l->cache->set($this->_cache_content, $this->_cache_name, $this->_cache_params);
+//		}
 	}
 }
 
