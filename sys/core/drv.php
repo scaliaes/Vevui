@@ -33,6 +33,8 @@ abstract class Drv
 	protected $_conditions;
 	protected $_fields;
 
+	protected $_multi_insert;
+
 	protected $_map;
 	protected $_reduce;
 
@@ -40,17 +42,21 @@ abstract class Drv
 	{
 		$this->_type = self::DRV_UNDEFINED;
 		$this->_collection_name = $name;
+		$this->_multi_insert = FALSE;
+		$this->_documents = $this->_conditions = $this->_fields = NULL;
+		$this->_map = $this->_reduce = NULL;
 		return $this;
 	}
 
-	function insert($fields)
+	function insert($fields, $multi = FALSE)
 	{
-		$this->_type = self::DRV_SELECT;
-		$this->_documents = is_array(reset($fields))?$fields:array($fields);
+		$this->_type = self::DRV_INSERT;
+		$this->_documents = $fields;
+		$this->_multi_insert = $multi;
 		return $this;
 	}
 
-	function select($fields = NULL, $conditions = NULL)
+	function select($fields = NULL)
 	{
 		$this->_type = self::DRV_SELECT;
 		$this->_fields = $fields;
@@ -73,6 +79,12 @@ abstract class Drv
 		return $this;
 	}
 
+	function where($field, $value = NULL, $operator = NULL)
+	{
+		$this->_conds[] = array($field, $value, $operator);
+		return $this;
+	}
+
 	function mapreduce($map, $reduce)
 	{
 		$this->_type = self::DRV_MAPREDUCE;
@@ -89,9 +101,7 @@ abstract class Drv
 		if($core->e->app['debug'])
 			echo '<p>'.$error_string.'</p>';
 
-		header('HTTP/1.0 500 Internal Server Error');	
-		include(APP_PATH.'/o/db.html');		
-		exit;
+		$core->internal_error();
 	}
 
 	abstract function exec();

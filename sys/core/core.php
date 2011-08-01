@@ -127,11 +127,8 @@ class Vevui
 		$this->_error = TRUE;
 		$this->disable_errors();
 
-		if (__FILE__ == $file) $this->not_found();
-
-		header('HTTP/1.0 500 Internal Server Error');
-
-		echo 'Ha ocurrido un error interno, disculpen las molestias';
+		if (__FILE__ == $file) $this->_not_found();
+		else $this->_internal_error();
 
 		$app = $this->e->app;
 		if($app['debug'])
@@ -188,7 +185,7 @@ class Vevui
 		{
 			if (array_key_exists('log_errors', $app) && $app['log_errors'])
 			{
-				$db = @new SQLite3($app['log_errors']);
+				$db = new SQLite3($app['log_errors']);
 				$values = array();
 				$values['file'] = "'".$db->escapeString($file)."'";
 				$values['line'] = (int) $line;
@@ -212,7 +209,7 @@ class Vevui
 				$values['input'] = "'".$db->escapeString(serialize($input))."'";
 
 				$sql = 'INSERT OR IGNORE INTO errors ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
-				if (@$db->exec($sql))
+				if ($db->exec($sql))
 				{
 					$sql = 'UPDATE errors
 							SET count=count+1, last_timestamp='.$values['last_timestamp'].'
@@ -220,7 +217,7 @@ class Vevui
 								AND line='.$values['line'].'
 								AND type='.$values['type'].'
 								AND slice='.$values['slice'];
-					@$db->exec($sql);
+					$db->exec($sql);
 				}
 				else
 				{
@@ -239,7 +236,7 @@ class Vevui
 								input TEXT NOT NULL,
 							CONSTRAINT uniq UNIQUE (file ASC, line ASC, type ASC, slice ASC)
 							)';
-					@$db->exec($sql);
+					$db->exec($sql);
 				}
 				$db->close();
 			}
@@ -372,7 +369,7 @@ class Vevui
 		$this->l->cache->set($_SERVER['REQUEST_URI'], $output);
 		echo $output;
 	}
-	
+
 	public function render($view_name, $vars = array(), $print_output = TRUE)
 	{
 		if (!$this->_haanga_loaded)
@@ -386,7 +383,7 @@ class Vevui
 		return Haanga::Load($view_name.'.html', $vars, TRUE);
 	}
 
-	public function not_found()
+	private function _not_found()
 	{
 		if (!$this->_haanga_loaded)
 		{
@@ -398,11 +395,16 @@ class Vevui
 		}
 
 		header('HTTP/1.0 404 Not Found');
-		Haanga::Load(APP_PATH.'/o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+		Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+	}
+
+	public function not_found()
+	{
+		$this->_not_found();
 		die();
 	}
 
-	public function internal_error()
+	private function _internal_error()
 	{
 		if (!$this->_haanga_loaded)
 		{
@@ -414,7 +416,12 @@ class Vevui
 		}
 
 		header('HTTP/1.0 500 Internal Server Error');
-		Haanga::Load(APP_PATH.'/o/500.html', array('resource' => $_SERVER['REQUEST_URI']));
+		Haanga::Load('../o/500.html', array('resource' => $_SERVER['REQUEST_URI']));
+	}
+
+	public function internal_error()
+	{
+		$this->_internal_error();
 		die();
 	}
 

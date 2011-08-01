@@ -22,9 +22,11 @@ class Client extends Lib
 		switch($name)
 		{
 			case 'ip':
-				return $this->ip = $_SERVER['REMOTE_ADDR'];
+				return $this->ip = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)?$_SERVER['HTTP_X_FORWARDED_FOR']:$_SERVER['REMOTE_ADDR'];
 			case 'ua':
 				return $this->ua = $_SERVER['HTTP_USER_AGENT'];
+			case 'referer':
+				return $this->referer = array_key_exists('HTTP_REFERER', $_SERVER)?$_SERVER['HTTP_USER_AGENT']:NULL;
 		}
 	}
 }

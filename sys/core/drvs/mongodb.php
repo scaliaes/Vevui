@@ -79,13 +79,13 @@ class Drv_MongoDB extends Drv
 
 	function _insert()
 	{
-		if (1 == count($this->_documents))
+		if ($this->_multi_insert)
 		{
-			$this->_current_collection->insert(reset($this->_documents));
+			$this->_current_collection->batchInsert($this->_documents);
 		}
 		else
 		{
-			$this->_current_collection->batchInsert($this->_documents);
+			$this->_current_collection->insert(reset($this->_documents));
 		}
 		return TRUE;
 	}
