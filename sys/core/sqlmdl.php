@@ -47,7 +47,8 @@ class SqlMdl
 			$drv = $db_config_value['drv'];
 			require_once(SYS_PATH.'/core/sqldrv.php');
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
-			$this->_drv = self::$_drivers[$db_config_key] = new $drv($db_config_value);
+			$drv_class = 'Drv_'.$drv;
+			$this->_drv = self::$_drivers[$db_config_key] = new $drv_class($db_config_value);
 		}
 	}
 
