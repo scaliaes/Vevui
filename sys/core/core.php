@@ -366,7 +366,8 @@ class Vevui
 	public function crender($view_name, $vars = array())
 	{
 		$output = $this->render($view_name, $vars, FALSE);
-		$this->l->cache->set($_SERVER['REQUEST_URI'], $output);
+		$request_uri = ($_SERVER['REQUEST_URI'] == '/' ? '/index' : $_SERVER['REQUEST_URI']);
+		$this->l->cache->set($_SERVER['HTTP_HOST'].$request_uri, $output);
 		echo $output;
 	}
 
