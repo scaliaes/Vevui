@@ -29,7 +29,7 @@ class Cache extends Lib
 		{
 			$path .= '/'.implode('/', array_map('sha1', $params));
 		}
-		$path .= '.html';
+		$path .= '/index.html';
 
 		$base_path = $this->e->app['cache_path'];
 		return file_get_contents($base_path.'/'.$path);
