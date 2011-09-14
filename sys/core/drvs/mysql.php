@@ -216,12 +216,15 @@ class Drv_MySQL extends SQLDrv
 						$query .= ' NATURAL JOIN '.$table;
 						break;
 					case self::LEFT_JOIN:
+						$comp = $cond[2]?$cond[2]:'=';
 						$query .= ' LEFT JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::RIGHT_JOIN:
+						$comp = $cond[2]?$cond[2]:'=';
 						$query .= ' RIGHT JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::FULL_OUTER_JOIN:
+						$comp = $cond[2]?$cond[2]:'=';
 						$query .= ' FULL OUTER JOIN '.$table.' ON '.$cond[0].$comp.$cond[1];
 						break;
 					case self::CROSS_JOIN:
