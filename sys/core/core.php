@@ -301,7 +301,7 @@ class Vevui
 		++$start;
 		if ($start < $uri_segs_count)
 		{
-			if ($uri_segs[$start])
+			if ('' !== $uri_segs[$start])
 				$this->_request_method = $uri_segs[$start];
 
 			$request_params = array_slice($uri_segs, $start+1);
