@@ -127,16 +127,16 @@ class Drv_MySQL extends SQLDrv
 			$field = $cond[0];
 			$values = $cond[1];
 			$operator = $cond[2];
-			if ($values !== NULL)
+			if (NULL !== $values)
 			{
 				if (is_array($values))
 				{
-					$comp = $operator?$comp:' IN ';
+					$comp = $operator?$operator:' IN ';
 					$where[] = $field.$comp.'('.implode(', ', $this->escape($values)).')';
 				}
 				else
 				{
-					$comp = $operator?$comp:'=';
+					$comp = $operator?$operator:'=';
 					$where[] = $field.$comp.$this->escape($values);
 				}
 			}
@@ -156,16 +156,16 @@ class Drv_MySQL extends SQLDrv
 			$field = $cond[0];
 			$values = $cond[1];
 			$operator = $cond[2];
-			if ($values !== NULL)
+			if (NULL !== $values)
 			{
 				if (is_array($values))
 				{
-					$comp = $operator?$comp:' IN ';
+					$comp = $operator?$operator:' IN ';
 					$where[] = $field.$comp.'('.implode(', ', $this->escape($values)).')';
 				}
 				else
 				{
-					$comp = $operator?$comp:'=';
+					$comp = $operator?$operator:'=';
 					$where[] = $field.$comp.$this->escape($values);
 				}
 			}

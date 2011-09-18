@@ -295,7 +295,7 @@ class Vevui
 		$this->_request_method = 'index';
 		$request_params = array();
 
-		if ($uri_segs[$start])
+		if ('' !== $uri_segs[$start])
 			$this->_request_class = strtolower($uri_segs[$start]);
 
 		++$start;
