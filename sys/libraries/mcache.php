@@ -21,6 +21,8 @@ class Mcache extends Lib
 
 	function  __construct()
 	{
+		parent::__construct();
+
 		$servers = array();
 		foreach($this->e->mcache['servers'] as $server)
 		{
