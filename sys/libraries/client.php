@@ -24,7 +24,7 @@ class Client extends Lib
 			case 'ip':
 				return $this->ip = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)?$_SERVER['HTTP_X_FORWARDED_FOR']:$_SERVER['REMOTE_ADDR'];
 			case 'ua':
-				return $this->ua = $_SERVER['HTTP_USER_AGENT'];
+				return $this->ua = array_key_exists('HTTP_USER_AGENT', $_SERVER)?$_SERVER['HTTP_USER_AGENT']:NULL;
 			case 'referer':
 				return $this->referer = array_key_exists('HTTP_REFERER', $_SERVER)?$_SERVER['HTTP_USER_AGENT']:NULL;
 		}

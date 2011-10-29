@@ -29,6 +29,10 @@ class Drv_MySQL extends SQLDrv
 	{
 		switch(TRUE)
 		{
+			case NULL === $mixed:
+				return 'NULL';
+			case is_bool($mixed):
+				return $mixed?'TRUE':'FALSE';
 			case is_string($mixed):
 				return '"' . mysql_real_escape_string($mixed, $this->_connection) . '"';
 			case is_array($mixed):
