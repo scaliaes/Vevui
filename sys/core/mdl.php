@@ -29,13 +29,13 @@ class Mdl
 		$config = $this->_core->e->db;
 		if (NULL === $db_index)
 		{
-			$db_config_key = $config['default_schema'];
-			$db_config_value = $config['db'][$db_config_key];
+			$db_config_key = $config->default_schema;
+			$db_config_value = $config->db->{$db_config_key};
 		}
 		else
 		{
 			$db_config_key = $db_index;
-			$db_config_value = $config['db'][$db_index];
+			$db_config_value = $config->db->{$db_index};
 		}
 
 		if (array_key_exists($db_config_key, self::$_drivers))
@@ -44,7 +44,7 @@ class Mdl
 		}
 		else
 		{
-			$drv = $db_config_value['drv'];
+			$drv = $db_config_value->drv;
 			require_once(SYS_PATH.'/core/drv.php');
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 			$class = 'Drv_'.$drv;

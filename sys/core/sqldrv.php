@@ -80,18 +80,16 @@ abstract class SQLDrv
 		return $this;
 	}
 
-	function update($fields, $field, $value, $operator = NULL)
+	function update($fields)
 	{
 		$this->_type = self::SQL_UPDATE;
 		$this->_fields = $fields;
-		$this->_conds[] = array($field, $value, $operator);
 		return $this;
 	}
 
-	function delete($field, $value, $operator = NULL)
+	function delete()
 	{
 		$this->_type = self::SQL_DELETE;
-		$this->_conds[] = array($field, $value, $operator);
 		return $this;
 	}
 
@@ -199,17 +197,17 @@ abstract class SQLDrv
 		$core = & Vevui::get();
 		
 		// TODO: store error_string in error database
-		if($core->e->app['debug'])
+		if($core->e->app->debug)
 			echo '<p>'.$error_string.'</p>';
 
-		header('HTTP/1.0 500 Internal Server Error');	
-		include(APP_PATH.'/o/db.html');		
-		exit;
+		$core->internal_error();
 	}
 
 	abstract function escape($mixed);
 	abstract function string();
 	abstract function exec();
+	abstract function exec_obj();
+	abstract function exec_one();
 	abstract function last_id();
 	abstract function affected_rows();
 }

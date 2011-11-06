@@ -28,8 +28,8 @@ class Ctrl
 
 		$config = $this->e->app;
 
-		$this->_debug = $config['debug'];
-		$this->_profiling = $config['profiling'];
+		$this->_debug = $config->debug;
+		$this->_profiling = $config->profiling;
 
 		if (lcg_value() < $this->_profiling) // Hooray, saving data!
 		{

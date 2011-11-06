@@ -22,11 +22,11 @@ class ModelLoader
 		$core = & Vevui::get();
 		$loadnosqlmdl = $loadsqlmdl = FALSE;
 
-		foreach($core->e->db['db'] as $db)
+		foreach($core->e->db->db as $db)
 		{
 			if (!$loadnosqlmdl)
 			{
-				switch($db['drv'])
+				switch($db->drv)
 				{
 					case 'mongodb':
 						$loadnosqlmdl = TRUE;
@@ -34,7 +34,7 @@ class ModelLoader
 			}
 			if (!$loadsqlmdl)
 			{
-				switch($db['drv'])
+				switch($db->drv)
 				{
 					case 'mysql':
 						$loadsqlmdl = TRUE;

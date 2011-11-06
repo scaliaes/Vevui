@@ -19,9 +19,6 @@ $config = array();
 $globals = array();
 $globals['start_time'] = microtime(TRUE);
 
-require(SYS_PATH.'/core/ctrl.php');
-require(SYS_PATH.'/core/configloader.php');
-
 class Vevui
 {
 	static private $_core = NULL;
@@ -66,7 +63,7 @@ class Vevui
 
 	public function exception_handler($e)
 	{
-		if(FALSE === $this->e->app['debug'])
+		if(FALSE === $this->e->app->debug)
 		{
 			$this->_shutdown_error_handler($e->getCode(), $e->getFile(), $e->getLine(), $e->getMessage());
 		}
@@ -101,7 +98,7 @@ class Vevui
 			case E_STRICT:		
 			case E_DEPRECATED:
 			case E_USER_DEPRECATED:		
-				if(FALSE === $this->e->app['debug'])
+				if(FALSE === $this->e->app->debug)
 				{
 					$this->_shutdown_error_handler($errno, $errfile, $errline, $errstr);
 				}
@@ -131,7 +128,7 @@ class Vevui
 		else $this->_internal_error();
 
 		$app = $this->e->app;
-		if($app['debug'])
+		if($app->debug)
 		{
 			echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
 			$error = array
@@ -183,9 +180,9 @@ class Vevui
 		}
 		else
 		{
-			if (array_key_exists('log_errors', $app) && $app['log_errors'])
+			if (property_exists($app, 'log_errors') && $app->log_errors)
 			{
-				$db = new SQLite3($app['log_errors']);
+				$db = new SQLite3($app->log_errors);
 				$values = array();
 				$values['file'] = "'".$db->escapeString($file)."'";
 				$values['line'] = (int) $line;
@@ -246,11 +243,11 @@ class Vevui
 
 	protected function __construct()
 	{
+		// Error handlers
+		error_reporting(0);
 		register_shutdown_function(array($this, 'shutdown'));
 		set_error_handler(array($this, 'error_handler'));
 		set_exception_handler(array($this, 'exception_handler'));
-
-		$this->e = new ConfigLoader();
 	}
 
 	public function route()
@@ -259,7 +256,7 @@ class Vevui
 		$uri = $_SERVER['REQUEST_URI'];
 
 		// Check if query string is activated
-		if($app['query_string'])
+		if($app->query_string)
 		{
 			if(FALSE !== ($query_pos = strpos($uri, '?')))
 			{
@@ -267,15 +264,15 @@ class Vevui
 				$uri = substr($uri, 0, $query_pos);
 
 				// Check if query string character set is valid
-				if(!preg_match('/^[=&'.$app['url_chars'].']+$/i', $query_string))
+				if(!preg_match('/^[=&'.$app->url_chars.']+$/i', $query_string))
 					$this->not_found();
 			}
 		}
 
 		// Apply URI Routing rules
-		if (array_key_exists('routes', $app))
+		if (property_exists($app, 'routes'))
 		{
-			foreach($app['routes'] as $pattern=>$redir)
+			foreach($app->routes as $pattern=>$redir)
 			{
 				$count = 0;
 				$uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $uri, 1, $count);
@@ -284,14 +281,14 @@ class Vevui
 		}
 
 		// Check if URI character set is valid
-		if(!preg_match('/^[\/'.$app['url_chars'].']+$/i', $uri))
+		if(!preg_match('/^[\/'.$app->url_chars.']+$/i', $uri))
 			$this->not_found();
 
 		$uri_segs = explode('/', urldecode($uri));
 		$uri_segs_count = count($uri_segs);
 
 		$start = ($uri_segs[1] == 'index.php')?2:1;
-		$this->_request_class = $app['default_controller'];
+		$this->_request_class = $app->default_controller;
 		$this->_request_method = 'index';
 		$request_params = array();
 
@@ -310,6 +307,7 @@ class Vevui
 		// Call controller/method
 		$filepath = APP_PATH.'/c/'.$this->_request_class.'.php';
 
+		require(SYS_PATH.'/core/ctrl.php');
 		require($filepath);
 		$request_class_obj = new $this->_request_class();
 
@@ -325,6 +323,9 @@ class Vevui
 	{
 		switch ($prop_name)
 		{
+			case 'e':
+				require(SYS_PATH.'/core/configloader.php');
+				return $this->e = new ConfigLoader();
 			case 'm':
 				require(SYS_PATH.'/core/modelloader.php');
 				return $this->m = new ModelLoader();
@@ -376,8 +377,8 @@ class Vevui
 		{
 			require(SYS_PATH.'/haanga/lib/Haanga.php');
 			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->ha;
-			Haanga::configure($config['haanga']);
+			$config = $this->e->haanga;
+			Haanga::configure($config);
 			$this->_haanga_loaded = TRUE;
 		}
 		return Haanga::Load($view_name.'.html', $vars, TRUE);
@@ -389,8 +390,8 @@ class Vevui
 		{
 			require(SYS_PATH.'/haanga/lib/Haanga.php');
 			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->ha;
-			Haanga::configure($config['haanga']);
+			$config = $this->e->haanga;
+			Haanga::configure($config);
 			$this->_haanga_loaded = TRUE;
 		}
 
@@ -410,8 +411,8 @@ class Vevui
 		{
 			require(SYS_PATH.'/haanga/lib/Haanga.php');
 			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->ha;
-			Haanga::configure($config['haanga']);
+			$config = $this->e->haanga;
+			Haanga::configure($config);
 			$this->_haanga_loaded = TRUE;
 		}
 
@@ -437,11 +438,5 @@ class Vevui
 		set_exception_handler(array($this, 'exception_handler'));
 	}
 }
-
-// Error handlers
-error_reporting(0);
-
-$core = & Vevui::get();
-$core->route();
 
 /* End of file sys/core/core.php */

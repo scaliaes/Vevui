@@ -15,25 +15,12 @@
  limitations under the License.
 *************************************************************************/
 
-$config['db'] = array
-	(
-		'mydb' => array
-			(
-				'drv' => 'mysql',
-				'host' => 'localhost',
-				'user' => 'dbuser',
-				'pass' => 'changeme',
-				'db' => 'test',
-				'char' => 'UTF8'
-			),
-		'mymongo' => array
-			(
-				'drv' => 'mongodb',
-				'host' => 'localhost',
-				'db' => 'test'
-			)
-	);
+define('VEVUI_VERSION', '0.1a');
 
-$config['default_schema'] = 'mymongo';
+define('ROOT_PATH', __DIR__.'/../..');
+define('SYS_PATH', ROOT_PATH.'/sys');
+define('APP_PATH', ROOT_PATH.'/app');
 
-/* End of file app/e/db.php */
+require(SYS_PATH.'/core/core.php');
+
+/* End of file sys/core/cli.php */

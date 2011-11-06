@@ -27,13 +27,13 @@ class Drv_MongoDB extends Drv
 		try
 		{
 			$this->_connection = new Mongo('mongodb://'.$db_config['host']);
-			$this->_db_name = $db_config['db'];
+			$this->_db_name = $db_config->db;
 			$this->_db = $this->_connection->{$this->_db_name};
 			$this->_collections = array($this->_db_name => array());
 
-			if (array_key_exists('user', $db_config))
+			if (property_exists($db_config, 'user'))
 			{
-				$this->_db->authenticate($db_config['user'], $db_config['pass']);
+				$this->_db->authenticate($db_config->user, $db_config->pass);
 			}
 		}
 		catch (MongoException $e)

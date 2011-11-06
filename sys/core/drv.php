@@ -81,7 +81,7 @@ abstract class Drv
 
 	function where($field, $value = NULL, $operator = NULL)
 	{
-		$this->_conds[] = array($field, $value, $operator);
+		$this->_conditions[] = array($field, $value, $operator);
 		return $this;
 	}
 
@@ -98,7 +98,7 @@ abstract class Drv
 		$core = & Vevui::get();
 
 		// TODO: store error_string in error database
-		if($core->e->app['debug'])
+		if($core->e->app->debug)
 			echo '<p>'.$error_string.'</p>';
 
 		$core->internal_error();

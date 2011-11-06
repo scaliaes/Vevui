@@ -31,7 +31,7 @@ class Cache extends Lib
 		}
 		$path .= '/index.html';
 
-		$base_path = $this->e->app['cache_path'];
+		$base_path = $this->e->app->cache_path;
 		return file_get_contents($base_path.'/'.$path);
 	}
 
@@ -44,7 +44,7 @@ class Cache extends Lib
 		}
 		$path .= '.html';
 
-		$base_path = $this->e->app['cache_path'];
+		$base_path = $this->e->app->cache_path;
 		$cache_fname = $base_path.'/'.$path;
 		$cache_dir = dirname($cache_fname);
 		if(!is_dir($cache_dir))

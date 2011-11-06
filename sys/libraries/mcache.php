@@ -24,9 +24,9 @@ class Mcache extends Lib
 		parent::__construct();
 
 		$servers = array();
-		foreach($this->e->mcache['servers'] as $server)
+		foreach($this->e->mcache->servers as $server)
 		{
-			$servers[] = array($server['host'], $server['port'], $server['weight']);
+			$servers[] = array($server->host, $server->port, $server->weight);
 		}
 		$this->_conn = new Memcached();
 		$this->_conn->addServers($servers);

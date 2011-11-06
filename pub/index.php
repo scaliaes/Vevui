@@ -37,4 +37,7 @@ define('APP_PATH', __DIR__.'/'.$app_path);
 
 require(SYS_PATH.'/core/core.php');
 
+$core = & Vevui::get();
+$core->route();
+
 /* End of file pub/index.php */

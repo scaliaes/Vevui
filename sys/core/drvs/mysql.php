@@ -19,10 +19,10 @@ class Drv_MySQL extends SQLDrv
 {
 	function __construct($db_config)
 	{
-		$this->_connection = @mysql_connect($db_config['host'],
-					$db_config['user'], $db_config['pass']) or $this->_raise_error(mysql_error());
-		@mysql_set_charset($db_config['char'], $this->_connection) or $this->_raise_error(mysql_error());
-		@mysql_select_db($db_config['db'], $this->_connection) or $this->_raise_error(mysql_error());
+		$this->_connection = @mysql_connect($db_config->host, $db_config->user,
+			$db_config->pass) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+		@mysql_set_charset($db_config->char, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+		@mysql_select_db($db_config->db, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
 	}
 
 	function escape($mixed)
@@ -73,16 +73,43 @@ class Drv_MySQL extends SQLDrv
 		}
 	}
 
-	function exec()
+	function exec($asobject = TRUE)
 	{
 		$query = $this->string();
 		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
-		
-		if(TRUE === $q)
-			return TRUE;
+
+		if (TRUE === $q) return TRUE;
 
 		$res = array();
-		while($row = mysql_fetch_object($q)) $res[] = $row;
+		if ($asobject)
+		{
+			while($row = mysql_fetch_object($q)) $res[] = $row;
+		}
+		else
+		{
+			while($row = mysql_fetch_assoc($q)) $res[] = $row;
+		}
+
+		mysql_free_result($q);
+		return $res;
+	}
+
+	function exec_one($asobject = TRUE)
+	{
+		$query = $this->string();
+		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+
+		if (TRUE === $q) return TRUE;
+
+		$res = array();
+		if ($asobject)
+		{
+			while($row = mysql_fetch_object($q)) $res[] = $row;
+		}
+		else
+		{
+			while($row = mysql_fetch_assoc($q)) $res[] = $row;
+		}
 
 		mysql_free_result($q);
 		return $res;

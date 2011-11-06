@@ -1,0 +1,42 @@
+##########################################################################
+# Copyright 2011 Vevui Development Team 
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################################################################
+
+# Basic configuration
+debug: true
+profiling: 0.15
+log_errors: ROOT_PATH/data/errors/db	# Leave blank or comment out to disable.
+
+# Controller loaded by default
+default_controller: main
+
+# Allowed chars in URI (case insensitive, PCRE style)
+# Warning: changing this value may be dangerous, the character '-' must be at the end or escaped
+url_chars: a-z0-9_-
+
+# Allow query string in URI
+query_string: false
+
+# Cache system
+cache_path: ROOT_PATH/cache/html
+
+# Config minimum recheck time, in seconds. Set to 0 to disable rechecking.
+config_ttl: 60
+
+# Routing system (case insensitive, PCRE style)
+routes:
+  ^/sample/(.*): /main/index/\1
+
+# End of file app/e/app.yaml

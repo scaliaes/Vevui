@@ -29,13 +29,13 @@ class SqlMdl
 		$config = $this->_core->e->db;
 		if (NULL === $db_index)
 		{
-			$db_config_key = $config['default_schema'];
-			$db_config_value = $config['db'][$db_config_key];
+			$db_config_key = $config->default_schema;
+			$db_config_value = $config->db->{$db_config_key};
 		}
 		else
 		{
 			$db_config_key = $db_index;
-			$db_config_value = $config['db'][$db_index];
+			$db_config_value = $config->db->{$db_index};
 		}
 
 		if (array_key_exists($db_config_key, self::$_drivers))
@@ -44,7 +44,7 @@ class SqlMdl
 		}
 		else
 		{
-			$drv = $db_config_value['drv'];
+			$drv = $db_config_value->drv;
 			require_once(SYS_PATH.'/core/sqldrv.php');
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 			$drv_class = 'Drv_'.$drv;
@@ -65,6 +65,12 @@ class SqlMdl
 	protected function affected_rows()
 	{
 		return $this->_drv->affected_rows();
+	}
+
+	protected function raw($query, $protect = array())
+	{
+		$this->_drv->new_query(NULL);
+		return $this->_drv->raw($query, $protect);
 	}
 }
 

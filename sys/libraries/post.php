@@ -77,7 +77,8 @@ class Post extends Lib
 			$required = $rule[1];
 			$funcs = $rule[2];		
 
-			$post_exists = array_key_exists($name, $this->_post);
+			$post_exists = array_key_exists($name, $this->_post) &&
+				(is_scalar($this->_post[$name]) || (NULL === $this->_post[$name]));
 			if ($post_exists)
 			{
 				$param = $this->_post[$name];
@@ -120,7 +121,7 @@ class Post extends Lib
 				if (strlen($this->_post[$name]) > $maxlen)
 					$this->_errors[ $name . '_error' ] = TRUE;
 			}
-			
+
 			if (array_key_exists($name, $this->_valid_mail_rules))
 			{
 				$regexp = '/^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[.][A-z]{2,4}$/';
@@ -130,7 +131,7 @@ class Post extends Lib
 		}
 		return empty($this->_errors);
 	}
-	
+
 	function get_errors()
 	{
 		return $this->_errors;

@@ -1,0 +1,69 @@
+<?php
+/*************************************************************************
+ Copyright 2011 Vevui Development Team
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*************************************************************************/
+
+class Yaml extends Lib
+{
+	private static $_parser;
+
+	public function  __construct()
+	{
+		parent::__construct();
+		require(SYS_PATH.'/libraries/spyc/spyc.php');
+		self::$_parser = new Spyc();
+	}
+
+	private function _parse_vars($array, $asobject)
+	{
+		$result = $asobject?new ConfigObject():array();
+		foreach ($array as $key => $value)
+		{
+			switch(TRUE)
+			{
+				case is_string($value):
+					switch(TRUE)
+					{
+						case 0===strncmp($value, 'ROOT_PATH', 9):
+							$value = ROOT_PATH.substr($value, 9);
+							break;
+						case 0===strncmp($value, 'APP_PATH', 8):
+							$value = APP_PATH.substr($value, 8);
+							break;
+						case 0===strncmp($value, 'SYS_PATH', 8):
+							$value = SYS_PATH.substr($value, 8);
+							break;
+					}
+					break;
+				case is_array($value):
+				case is_object($value):
+					$value = $this->_parse_vars($value, $asobject);
+					break;
+			}
+			if ($asobject) $result->{$key} = $value;
+			else $result[$key] = $value;
+		}
+		return $result;
+	}
+
+	public function load($filepath, $asobject = TRUE)
+	{
+		$content = @self::$_parser->loadFile($filepath);
+
+		return $this->_parse_vars($content, $asobject);
+	}
+}
+
+/* End of file sys/libraries/yaml.php */
