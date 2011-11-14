@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-abstract class SQLDrv
+abstract class SQLDrv implements Iterator
 {
 	const SQL_UNDEFINED = 0;
 	const SQL_RAW = 1;
@@ -32,7 +32,6 @@ abstract class SQLDrv
 	const CROSS_JOIN = 5;
 
 	protected $_type;
-	protected $_connection;
 	protected $_table;
 
 	protected $_raw_query;
@@ -48,6 +47,8 @@ abstract class SQLDrv
 
 	protected $_order;
 
+	protected $_as_object;
+
 	function new_query($name)
 	{
 		$this->_type = self::SQL_UNDEFINED;
@@ -55,6 +56,7 @@ abstract class SQLDrv
 		$this->_raw_query = $this->_protect = NULL;
 		$this->_fields = $this->_joins = $this->_conds = $this->_group = $this->_having = $this->_limit = $this->_offset = NULL;
 		$this->_order = NULL;
+		$this->_as_object = FALSE;
 		return $this;
 	}
 
@@ -192,6 +194,12 @@ abstract class SQLDrv
 		return $this;
 	}
 
+	function as_obj()
+	{
+		$this->_as_object = TRUE;
+		return $this;
+	}
+
 	protected function _raise_error($error_string)
 	{
 		$core = & Vevui::get();
@@ -206,7 +214,6 @@ abstract class SQLDrv
 	abstract function escape($mixed);
 	abstract function string();
 	abstract function exec();
-	abstract function exec_obj();
 	abstract function exec_one();
 	abstract function last_id();
 	abstract function affected_rows();

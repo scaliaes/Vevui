@@ -17,12 +17,33 @@
 
 class Drv_MySQL extends SQLDrv
 {
+	private $_connection;
+	private $_current_query;
+	private $_current_row;
+	private $_current_query_count;
+
 	function __construct($db_config)
 	{
+		$this->_current_query = $this->_current_row = NULL;
+		$this->_current_query_count = 0;
 		$this->_connection = @mysql_connect($db_config->host, $db_config->user,
 			$db_config->pass) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
 		@mysql_set_charset($db_config->char, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
 		@mysql_select_db($db_config->db, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+	}
+
+	function new_query($name)
+	{
+		$ret = parent::new_query($name);
+		if ($this->_current_row)
+		{
+			echo "LIMPIANDO...";
+			while($row = mysql_fetch_array($this->_current_query, MYSQL_NUM)) print_r($row);
+			echo "...FIN";
+		}
+		$this->_current_query = $this->_current_row = NULL;
+		$this->_current_query_count = 0;
+		return $ret;
 	}
 
 	function escape($mixed)
@@ -73,15 +94,20 @@ class Drv_MySQL extends SQLDrv
 		}
 	}
 
-	function exec($asobject = TRUE)
+	private function _exec()
 	{
 		$query = $this->string();
 		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+		return $q;
+	}
 
+	function exec()
+	{
+		$q = $this->_exec();
 		if (TRUE === $q) return TRUE;
 
 		$res = array();
-		if ($asobject)
+		if ($this->_as_object)
 		{
 			while($row = mysql_fetch_object($q)) $res[] = $row;
 		}
@@ -90,28 +116,26 @@ class Drv_MySQL extends SQLDrv
 			while($row = mysql_fetch_assoc($q)) $res[] = $row;
 		}
 
-		mysql_free_result($q);
 		return $res;
 	}
 
-	function exec_one($asobject = TRUE)
+	function exec_one()
 	{
-		$query = $this->string();
-		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
-
+		$q = $this->_exec();
 		if (TRUE === $q) return TRUE;
 
-		$res = array();
-		if ($asobject)
+		$this->_current_query = $q;
+		if ($this->_as_object)
 		{
-			while($row = mysql_fetch_object($q)) $res[] = $row;
+			$this->_current_row = $row = mysql_fetch_object($q);
+			$res = $row?$row:new stdClass();
 		}
 		else
 		{
-			while($row = mysql_fetch_assoc($q)) $res[] = $row;
+			$this->_current_row = $row = mysql_fetch_assoc($q);
+			$res = $row?$row:array();
 		}
 
-		mysql_free_result($q);
 		return $res;
 	}
 	
@@ -350,6 +374,56 @@ class Drv_MySQL extends SQLDrv
 		}
 
 		return $query;
+	}
+
+	function rewind()
+	{
+		if ($this->_current_query) $this->_raise_error('Rewind not allowed here');
+
+		$this->_current_query = $this->_exec();
+		if (TRUE !== $this->_current_query)
+		{
+			if ($this->_as_object)
+			{
+				$this->_current_row = mysql_fetch_object($this->_current_query);
+			}
+			else
+			{
+				$this->_current_row = mysql_fetch_assoc($this->_current_query);
+			}
+		}
+		else
+		{
+			$this->_current_row = FALSE;
+		}
+	}
+
+	function valid()
+	{
+		return (bool) $this->_current_row;
+	}
+
+	function current()
+	{
+		return $this->_current_row;
+	}
+
+	function key()
+	{
+		return $this->_current_query_count;
+	}
+
+	function next()
+	{
+		if ($this->_as_object)
+		{
+			$this->_current_row = mysql_fetch_object($this->_current_query);
+		}
+		else
+		{
+			$this->_current_row = mysql_fetch_assoc($this->_current_query);
+		}
+		++$this->_current_query_count;
 	}
 }
 
