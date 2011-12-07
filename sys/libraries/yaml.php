@@ -28,7 +28,7 @@ class Yaml extends Lib
 
 	private function _parse_vars($array, $asobject)
 	{
-		$result = $asobject?new ConfigObject():array();
+		$result = $asobject?new stdClass():array();
 		foreach ($array as $key => $value)
 		{
 			switch(TRUE)

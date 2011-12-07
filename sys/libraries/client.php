@@ -22,11 +22,63 @@ class Client extends Lib
 		switch($name)
 		{
 			case 'ip':
-				return $this->ip = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)?$_SERVER['HTTP_X_FORWARDED_FOR']:$_SERVER['REMOTE_ADDR'];
+				return $this->$name = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)?$_SERVER['HTTP_X_FORWARDED_FOR']:$_SERVER['REMOTE_ADDR'];
 			case 'ua':
-				return $this->ua = array_key_exists('HTTP_USER_AGENT', $_SERVER)?$_SERVER['HTTP_USER_AGENT']:NULL;
+				return $this->$name = array_key_exists('HTTP_USER_AGENT', $_SERVER)?$_SERVER['HTTP_USER_AGENT']:NULL;
 			case 'referer':
-				return $this->referer = array_key_exists('HTTP_REFERER', $_SERVER)?$_SERVER['HTTP_USER_AGENT']:NULL;
+				return $this->$name = array_key_exists('HTTP_REFERER', $_SERVER)?$_SERVER['HTTP_REFERER']:NULL;
+			case 'langs':
+				if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER))
+				{
+					$accept_header = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+					$pos = strpos($accept_header, ';');
+					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
+
+					return $this->$name = array_map('trim', explode(',', $accept_header));
+				}
+
+				$ua = $this->ua;
+				$pos1 = strpos($ua, '(');
+				$pos2 = strpos($ua, ')');
+				if ( (FALSE===$pos1) || (FALSE===$pos2) ) return $this->$name = array();
+
+				$ua = substr($ua, $pos1+1, $pos2-$pos1-1);
+				$parts = explode(';', $ua);
+
+				return $this->$name = array_key_exists(3, $parts)?array(trim($parts[3])):array();
+			case 'charsets':
+				if (array_key_exists('HTTP_ACCEPT_CHARSET', $_SERVER))
+				{
+					$accept_header = $_SERVER['HTTP_ACCEPT_CHARSET'];
+					$pos = strpos($accept_header, ';');
+					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
+
+					return $this->$name = array_map('trim', explode(',', $accept_header));
+				}
+
+				return $this->$name = array();
+			case 'encodings':
+				if (array_key_exists('HTTP_ACCEPT_ENCODING', $_SERVER))
+				{
+					$accept_header = $_SERVER['HTTP_ACCEPT_ENCODING'];
+					$pos = strpos($accept_header, ';');
+					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
+
+					return $this->$name = array_map('trim', explode(',', $accept_header));
+				}
+
+				return $this->$name = array();
+			case 'accept':
+				if (array_key_exists('HTTP_ACCEPT', $_SERVER))
+				{
+					$accept_header = $_SERVER['HTTP_ACCEPT'];
+					$pos = strpos($accept_header, ';');
+					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
+
+					return $this->$name = array_map('trim', explode(',', $accept_header));
+				}
+
+				return $this->$name = array();
 		}
 	}
 }

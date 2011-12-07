@@ -38,6 +38,10 @@ abstract class Drv
 	protected $_map;
 	protected $_reduce;
 
+	protected $_as_object;
+
+	function __construct() {}
+
 	function new_query($name)
 	{
 		$this->_type = self::DRV_UNDEFINED;
@@ -45,6 +49,7 @@ abstract class Drv
 		$this->_multi_insert = FALSE;
 		$this->_documents = $this->_conditions = $this->_fields = NULL;
 		$this->_map = $this->_reduce = NULL;
+		$this->_as_object = FALSE;
 		return $this;
 	}
 
@@ -93,6 +98,12 @@ abstract class Drv
 		return $this;
 	}
 
+	function as_obj()
+	{
+		$this->_as_object = TRUE;
+		return $this;
+	}
+
 	protected function _raise_error($error_string)
 	{
 		$core = & Vevui::get();
@@ -104,7 +115,9 @@ abstract class Drv
 		$core->internal_error();
 	}
 
+	abstract function register_functions();
 	abstract function exec();
+	abstract function exec_one();
 }
 
 /* End of file sys/core/drv.php */

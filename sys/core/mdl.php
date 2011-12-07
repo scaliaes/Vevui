@@ -18,9 +18,11 @@
 class Mdl
 {
 	private static $_drivers = array();
+	private static $_drv_loaded = FALSE;
 	private $_core;
 
 	private $_drv;
+	private $_config_key;
 
 	function __construct($db_index = NULL)
 	{
@@ -40,16 +42,25 @@ class Mdl
 
 		if (array_key_exists($db_config_key, self::$_drivers))
 		{
-			$this->_drv = self::$_drivers[$db_config_key];
+			$this->_drv = & self::$_drivers[$db_config_key]['drv'];
 		}
 		else
 		{
 			$drv = $db_config_value->drv;
-			require_once(SYS_PATH.'/core/drv.php');
+			if (!self::$_drv_loaded)
+			{
+				require(SYS_PATH.'/core/drv.php');
+				self::$_drv_loaded = TRUE;
+			}
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
+
 			$class = 'Drv_'.$drv;
-			$this->_drv = self::$_drivers[$db_config_key] = new $class($db_config_value);
+			$this->_drv = new $class($db_config_value);
+
+			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
+			self::$_drivers[$db_config_key]['functions'] = $this->_drv->register_functions();
 		}
+		$this->_config_key = $db_config_key;
 	}
 
 	function __get($name)
@@ -65,6 +76,11 @@ class Mdl
 	function enable_errors()
 	{
 		$this->_core->enable_errors();
+	}
+
+	function __call($name, $arguments)
+	{
+		return call_user_func_array(self::$_drivers[$this->_config_key]['functions'][$name], $arguments);
 	}
 }
 

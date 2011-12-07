@@ -49,6 +49,8 @@ abstract class SQLDrv implements Iterator
 
 	protected $_as_object;
 
+	function __construct() {}
+
 	function new_query($name)
 	{
 		$this->_type = self::SQL_UNDEFINED;
@@ -211,12 +213,9 @@ abstract class SQLDrv implements Iterator
 		$core->internal_error();
 	}
 
-	abstract function escape($mixed);
-	abstract function string();
+	abstract function register_functions();
 	abstract function exec();
 	abstract function exec_one();
-	abstract function last_id();
-	abstract function affected_rows();
 }
 
 /* End of file sys/core/sqldrv.php */

@@ -24,6 +24,8 @@ class Drv_MySQL extends SQLDrv
 
 	function __construct($db_config)
 	{
+		parent::__construct($db_config);
+
 		$this->_current_query = $this->_current_row = NULL;
 		$this->_current_query_count = 0;
 		$this->_connection = @mysql_connect($db_config->host, $db_config->user,
@@ -32,14 +34,24 @@ class Drv_MySQL extends SQLDrv
 		@mysql_select_db($db_config->db, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
 	}
 
+	function register_functions()
+	{
+		$funcs = array
+			(
+				'escape' => array($this, 'escape'),
+				'string' => array($this, 'string'),
+				'last_id' => array($this, 'last_id'),
+				'affected_rows' => array($this, 'affected_rows')
+			);
+		return $funcs;
+	}
+
 	function new_query($name)
 	{
 		$ret = parent::new_query($name);
 		if ($this->_current_row)
 		{
-			echo "LIMPIANDO...";
 			while($row = mysql_fetch_array($this->_current_query, MYSQL_NUM)) print_r($row);
-			echo "...FIN";
 		}
 		$this->_current_query = $this->_current_row = NULL;
 		$this->_current_query_count = 0;
@@ -109,7 +121,7 @@ class Drv_MySQL extends SQLDrv
 		$res = array();
 		if ($this->_as_object)
 		{
-			while($row = mysql_fetch_object($q)) $res[] = $row;
+			while($row = mysql_fetch_assoc($q)) $res[] = (object) $row;
 		}
 		else
 		{
@@ -127,8 +139,8 @@ class Drv_MySQL extends SQLDrv
 		$this->_current_query = $q;
 		if ($this->_as_object)
 		{
-			$this->_current_row = $row = mysql_fetch_object($q);
-			$res = $row?$row:new stdClass();
+			$row = mysql_fetch_assoc($q);
+			$this->_current_row = $res = $row?(object)$row:new stdClass();
 		}
 		else
 		{
@@ -146,7 +158,7 @@ class Drv_MySQL extends SQLDrv
 	
 	function affected_rows()
 	{
-		return mysql_affected_rows();
+		return mysql_affected_rows($this->_connection);
 	}
 
 	private function _raw()
@@ -385,7 +397,8 @@ class Drv_MySQL extends SQLDrv
 		{
 			if ($this->_as_object)
 			{
-				$this->_current_row = mysql_fetch_object($this->_current_query);
+				$row = mysql_fetch_assoc($this->_current_query);
+				$this->_current_row = $row?(object)$row:$row;
 			}
 			else
 			{
@@ -417,7 +430,8 @@ class Drv_MySQL extends SQLDrv
 	{
 		if ($this->_as_object)
 		{
-			$this->_current_row = mysql_fetch_object($this->_current_query);
+			$row = mysql_fetch_assoc($this->_current_query);
+			$this->_current_row = $row?(object)$row:$row;
 		}
 		else
 		{

@@ -29,6 +29,7 @@ class Vevui
 
 	private $_request_class = NULL;
 	private $_request_method = NULL;
+	private $_request_ctrl = NULL;
 
 	private $_error = FALSE;
 
@@ -81,7 +82,7 @@ class Vevui
 
 		switch($errno)
 		{
-			case E_ERROR:		
+			case E_ERROR:
 			case E_PARSE:
 			case E_CORE_ERROR:
 			case E_COMPILE_ERROR:
@@ -89,15 +90,15 @@ class Vevui
 			case E_PARSE:
 			case E_RECOVERABLE_ERROR:
 				break;
-			case E_WARNING:			
-			case E_NOTICE:			
+			case E_WARNING:
+			case E_NOTICE:
 			case E_CORE_WARNING:
 			case E_COMPILE_WARNING:
-			case E_USER_WARNING:		
+			case E_USER_WARNING:
 			case E_USER_NOTICE:
-			case E_STRICT:		
+			case E_STRICT:
 			case E_DEPRECATED:
-			case E_USER_DEPRECATED:		
+			case E_USER_DEPRECATED:
 				if(FALSE === $this->e->app->debug)
 				{
 					$this->_shutdown_error_handler($errno, $errfile, $errline, $errstr);
@@ -309,14 +310,14 @@ class Vevui
 
 		require(SYS_PATH.'/core/ctrl.php');
 		require($filepath);
-		$request_class_obj = new $this->_request_class();
+		$this->_request_ctrl = new $this->_request_class();
 
-		if( !is_subclass_of($request_class_obj, 'Ctrl') || !strncmp($this->_request_method, '__', 2) )
+		if( !is_subclass_of($this->_request_ctrl, 'Ctrl') || !strncmp($this->_request_method, '_', 1) )
 		{
 			$this->not_found();
 		}
 
-		call_user_func_array(array($request_class_obj, $this->_request_method), $request_params);
+		call_user_func_array(array($this->_request_ctrl, $this->_request_method), $request_params);
 	}
 
 	public function __get($prop_name)
@@ -344,21 +345,21 @@ class Vevui
 					$this->_library_loader_loaded = TRUE;
 				}
 				return $this->l = new LibraryLoader();
-			case 'mh':
+			case 'uh':
 				if (!$this->_helper_loader_loaded)
 				{
 					require(SYS_PATH.'/core/helperloader.php');
 					$this->_helper_loader_loaded = TRUE;
 				}
-				return $this->mh = new HelperLoader(TRUE);
-			case 'ml':
+				return $this->uh = new HelperLoader(TRUE);
+			case 'ul':
 				if (!$this->_library_loader_loaded)
 				{
 					require(SYS_PATH.'/core/libraryloader.php');
 					require(SYS_PATH.'/core/lib.php');
 					$this->_library_loader_loaded = TRUE;
 				}
-				return $this->ml = new LibraryLoader(TRUE);
+				return $this->ul = new LibraryLoader(TRUE);
 			default:
 				$this->internal_error();
 		}
@@ -436,6 +437,14 @@ class Vevui
 	{
 		set_error_handler(array($this, 'error_handler'));
 		set_exception_handler(array($this, 'exception_handler'));
+	}
+
+	private function _call_error_handler()
+	{
+		if ($this->_request_ctrl && is_callable(array($this->_request_ctrl, '_error_handler')))
+		{
+			call_user_func_array(array($this->_request_ctrl, '_error_handler'), func_get_args());
+		}
 	}
 }
 

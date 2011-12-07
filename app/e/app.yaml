@@ -17,7 +17,7 @@
 # Basic configuration
 debug: true
 profiling: 0.15
-log_errors: ROOT_PATH/data/errors/db	# Leave blank or comment out to disable.
+log_errors: ROOT_PATH/data/errors.db	# Leave blank or comment out to disable.
 
 # Controller loaded by default
 default_controller: main

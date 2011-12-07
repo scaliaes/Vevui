@@ -18,6 +18,7 @@
 class SqlMdl
 {
 	private static $_drivers = array();
+	private static $_sqldrv_loaded = FALSE;
 	private $_core;
 
 	private $_drv;
@@ -40,37 +41,39 @@ class SqlMdl
 
 		if (array_key_exists($db_config_key, self::$_drivers))
 		{
-			$this->_drv = self::$_drivers[$db_config_key];
+			$this->_drv = & self::$_drivers[$db_config_key]['drv'];
 		}
 		else
 		{
 			$drv = $db_config_value->drv;
-			require_once(SYS_PATH.'/core/sqldrv.php');
+			if (!self::$_sqldrv_loaded)
+			{
+				require(SYS_PATH.'/core/sqldrv.php');
+				self::$_sqldrv_loaded = TRUE;
+			}
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 			$drv_class = 'Drv_'.$drv;
-			$this->_drv = self::$_drivers[$db_config_key] = new $drv_class($db_config_value);
+			$this->_drv = new $class($db_config_value);
+
+			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
+			self::$_drivers[$db_config_key]['functions'] = $this->_drv->register_functions();
 		}
 	}
 
-	function __get($name)
+	protected function __get($name)
 	{
 		return $this->_drv->new_query($name);
-	}
-
-	protected function last_id()
-	{
-		return $this->_drv->last_id();
-	}
-
-	protected function affected_rows()
-	{
-		return $this->_drv->affected_rows();
 	}
 
 	protected function raw($query, $protect = array())
 	{
 		$this->_drv->new_query(NULL);
 		return $this->_drv->raw($query, $protect);
+	}
+
+	protected function __call($name, $arguments)
+	{
+		return call_user_func_array(self::$_drivers[$this->_config_key]['functions'][$name], $arguments);
 	}
 }
 
