@@ -17,6 +17,8 @@
 
 class ConfigLoader
 {
+	const VERSION = 1;
+
 	function __construct()
 	{
 		$config_dir = APP_PATH.'/e';
@@ -28,7 +30,7 @@ class ConfigLoader
 		@include($config_file_path);
 		$core->enable_errors();
 
-		if (isset($config) && VEVUI_VERSION == $config->_vevui->version)
+		if (isset($config) && self::VERSION === $config->_vevui->version)
 		{
 			$config_ok = TRUE;
 		}
@@ -68,7 +70,7 @@ class ConfigLoader
 			}
 
 			$config->_vevui = new stdClass();
-			$config->_vevui->version = VEVUI_VERSION;
+			$config->_vevui->version = self::VERSION;
 			$config->_vevui->timestamp = time();
 
 			// Save config atomically. If not possible, we still work but very slow!
