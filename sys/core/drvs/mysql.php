@@ -51,7 +51,7 @@ class Drv_MySQL extends SQLDrv
 		$ret = parent::new_query($name);
 		if ($this->_current_row)
 		{
-			while($row = mysql_fetch_array($this->_current_query, MYSQL_NUM)) print_r($row);
+			while($row = mysql_fetch_array($this->_current_query, MYSQL_NUM)) ;
 		}
 		$this->_current_query = $this->_current_row = NULL;
 		$this->_current_query_count = 0;
@@ -133,6 +133,8 @@ class Drv_MySQL extends SQLDrv
 
 	function exec_one()
 	{
+		$this->limit(1);
+
 		$q = $this->_exec();
 		if (TRUE === $q) return TRUE;
 
@@ -140,22 +142,22 @@ class Drv_MySQL extends SQLDrv
 		if ($this->_as_object)
 		{
 			$row = mysql_fetch_assoc($q);
-			$this->_current_row = $res = $row?(object)$row:new stdClass();
+			$this->_current_row = $res = $row?(object)$row:NULL;
 		}
 		else
 		{
 			$this->_current_row = $row = mysql_fetch_assoc($q);
-			$res = $row?$row:array();
+			$res = $row?$row:NULL;
 		}
 
 		return $res;
 	}
-	
+
 	function last_id()
 	{
 		return mysql_insert_id($this->_connection);
 	}
-	
+
 	function affected_rows()
 	{
 		return mysql_affected_rows($this->_connection);

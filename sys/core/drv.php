@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-abstract class Drv
+abstract class Drv implements Iterator
 {
 	const DRV_UNDEFINED = 0;
 	const DRV_RAW = 1;
@@ -32,8 +32,7 @@ abstract class Drv
 	protected $_documents;
 	protected $_conditions;
 	protected $_fields;
-
-	protected $_multi_insert;
+	protected $_unselected_fields;
 
 	protected $_map;
 	protected $_reduce;
@@ -46,41 +45,37 @@ abstract class Drv
 	{
 		$this->_type = self::DRV_UNDEFINED;
 		$this->_collection_name = $name;
-		$this->_multi_insert = FALSE;
-		$this->_documents = $this->_conditions = $this->_fields = NULL;
+		$this->_documents = $this->_conditions = $this->_fields = $this->_unselected_fields = NULL;
 		$this->_map = $this->_reduce = NULL;
 		$this->_as_object = FALSE;
 		return $this;
 	}
 
-	function insert($fields, $multi = FALSE)
+	function insert($fields)
 	{
 		$this->_type = self::DRV_INSERT;
 		$this->_documents = $fields;
-		$this->_multi_insert = $multi;
 		return $this;
 	}
 
-	function select($fields = NULL)
+	function select($fields = NULL, $unselected_fields = NULL)
 	{
 		$this->_type = self::DRV_SELECT;
 		$this->_fields = $fields;
-		$this->_conditions = $conditions;
+		$this->_unselected_fields = $unselected_fields;
 		return $this;
 	}
 
-	function update($fields, $conditions)
+	function update($fields = array())
 	{
 		$this->_type = self::DRV_UPDATE;
 		$this->_fields = $fields;
-		$this->_conditions = $conditions;
 		return $this;
 	}
 
-	function delete($conditions = NULL)
+	function delete()
 	{
 		$this->_type = self::DRV_DELETE;
-		$this->_conditions = $conditions;
 		return $this;
 	}
 

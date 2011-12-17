@@ -148,7 +148,7 @@ class L10n extends Lib
 				$l = str_replace('-', '_', $l);
 				if (is_file($cldr_base_path.$cldr_subpath.'/'.$l.'.xml'))
 				{
-					$tmp = strtolower($l).($merge_with_default?'_def':'');
+					$tmp = strtolower($l).($merge_with_default?'_def':'').($short_names?'_short':'');
 					$data = $this->_get_cached($cache_file_dir, $tmp);
 					if (NULL !== $data)
 					{
@@ -170,7 +170,7 @@ class L10n extends Lib
 				$this->enable_errors();
 				if (FALSE === $xml) continue;
 
-				$filename = strtolower($l).($merge_with_default?'_def':'');
+				$filename = strtolower($l).($merge_with_default?'_def':'').($short_names?'_short':'');
 
 				$tmp = $xml->localeDisplayNames;
 				if (NULL === $tmp) continue;

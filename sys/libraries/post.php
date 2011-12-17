@@ -108,10 +108,10 @@ class Post extends Lib
 				$this->_errors[ $name . '_error' ] = TRUE;
 			}
 
-			if (array_key_exists($name, $this->_min_len_rules))
+			if ($post_exists && array_key_exists($name, $this->_min_len_rules))
 			{
 				$minlen = $this->_min_len_rules[$name];
-				if ( (!$post_exists) || (strlen($this->_post[$name]) < $minlen) )
+				if (strlen($this->_post[$name]) < $minlen)
 					$this->_errors[ $name . '_error' ] = TRUE;
 			}
 

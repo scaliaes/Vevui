@@ -23,7 +23,7 @@
 $sys_path = '../sys';
 
 /* Path where the app folder is located */
-$app_path = '../app'; 
+$app_path = '../app';
 
 /***********************************************************
   DON'T EDIT BELOW THIS LINE (UNLESS YOU ARE A DEVELOPER ;)
