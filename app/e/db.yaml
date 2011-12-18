@@ -26,6 +26,12 @@ db:
     drv: mongodb
     host: localhost
     db: test
+  myredis:
+    drv: redis
+    host: localhost
+    port: 6379
+    timeout: 10
+    prefix: myapp
 
 default_schema: mymongo
 

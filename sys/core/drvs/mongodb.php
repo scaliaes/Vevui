@@ -25,19 +25,19 @@ class Drv_MongoDB extends Drv implements Iterator
 	const DRV_DELETE = 5;
 	const DRV_MAPREDUCE = 6;
 
-	protected $_type;
-	protected $_connection;
-	protected $_collection_name;
+	private $_type;
+	private $_connection;
+	private $_collection_name;
 
-	protected $_documents;
-	protected $_conditions;
-	protected $_fields;
-	protected $_unselected_fields;
+	private $_documents;
+	private $_conditions;
+	private $_fields;
+	private $_unselected_fields;
 
-	protected $_map;
-	protected $_reduce;
+	private $_map;
+	private $_reduce;
 
-	protected $_as_object;
+	private $_as_object;
 
 	private $_db;
 	private $_db_name;
