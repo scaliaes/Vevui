@@ -31,7 +31,7 @@ db:
     host: localhost
     port: 6379
     timeout: 10
-    prefix: myapp
+    prefix: myapp:
 
 default_schema: mymongo
 
