@@ -15,8 +15,30 @@
  limitations under the License.
 *************************************************************************/
 
-class Drv_MongoDB extends Drv
+class Drv_MongoDB extends Drv implements Iterator
 {
+	const DRV_UNDEFINED = 0;
+	const DRV_RAW = 1;
+	const DRV_INSERT = 2;
+	const DRV_SELECT = 3;
+	const DRV_UPDATE = 4;
+	const DRV_DELETE = 5;
+	const DRV_MAPREDUCE = 6;
+
+	protected $_type;
+	protected $_connection;
+	protected $_collection_name;
+
+	protected $_documents;
+	protected $_conditions;
+	protected $_fields;
+	protected $_unselected_fields;
+
+	protected $_map;
+	protected $_reduce;
+
+	protected $_as_object;
+
 	private $_db;
 	private $_db_name;
 	private $_collections;
@@ -57,6 +79,71 @@ class Drv_MongoDB extends Drv
 		}
 	}
 
+	function new_query($name)
+	{
+		$this->_type = self::DRV_UNDEFINED;
+		$this->_collection_name = $name;
+		$this->_documents = $this->_conditions = $this->_fields = $this->_unselected_fields = NULL;
+		$this->_map = $this->_reduce = NULL;
+		$this->_as_object = FALSE;
+
+		$this->_modifiers = array();
+		$this->_multiple = TRUE;
+		$this->_safe = $this->_fsync = $this->_tailable = FALSE;
+		$this->_tailable_wait = $this->_tailable_max_life = $this->_tailable_start = NULL;
+		$this->_current_query = NULL;
+
+		return $this;
+	}
+
+	function insert($fields)
+	{
+		$this->_type = self::DRV_INSERT;
+		$this->_documents = $fields;
+		return $this;
+	}
+
+	function select($fields = NULL, $unselected_fields = NULL)
+	{
+		$this->_type = self::DRV_SELECT;
+		$this->_fields = $fields;
+		$this->_unselected_fields = $unselected_fields;
+		return $this;
+	}
+
+	function update($fields = array())
+	{
+		$this->_type = self::DRV_UPDATE;
+		$this->_fields = $fields;
+		return $this;
+	}
+
+	function delete()
+	{
+		$this->_type = self::DRV_DELETE;
+		return $this;
+	}
+
+	function where($field, $value = NULL, $operator = NULL)
+	{
+		$this->_conditions[] = array($field, $value, $operator);
+		return $this;
+	}
+
+	function mapreduce($map, $reduce)
+	{
+		$this->_type = self::DRV_MAPREDUCE;
+		$this->_map = $map;
+		$this->_reduce = $reduce;
+		return $this;
+	}
+
+	function as_obj()
+	{
+		$this->_as_object = TRUE;
+		return $this;
+	}
+
 	function register_functions()
 	{
 		$funcs = array
@@ -82,17 +169,6 @@ class Drv_MongoDB extends Drv
 				'affected_documents' => array($this, 'affected_documents')
 			);
 		return $funcs;
-	}
-
-	function new_query($name)
-	{
-		parent::new_query($name);
-		$this->_modifiers = array();
-		$this->_multiple = TRUE;
-		$this->_safe = $this->_fsync = $this->_tailable = FALSE;
-		$this->_tailable_wait = $this->_tailable_max_life = $this->_tailable_start = NULL;
-		$this->_current_query = NULL;
-		return $this;
 	}
 
 	function safe()
@@ -146,7 +222,6 @@ class Drv_MongoDB extends Drv
 	function exec()
 	{
 		$result = $this->_exec();
-
 		if (TRUE === $result)
 		{
 			return TRUE;
@@ -208,6 +283,7 @@ class Drv_MongoDB extends Drv
 
 	private function _parse_where($conditions)
 	{
+		if (NULL === $conditions) return array();
 		$where = array();
 		foreach($conditions as $cond)
 		{
@@ -275,10 +351,15 @@ class Drv_MongoDB extends Drv
 
 		if ($this->_multiple)
 		{
-			return $this->_current_collection->find($conds, $selected_fields);
+			$result = $this->_current_collection->find($conds, $selected_fields);
+			if ($this->_tailable) $result->tailable();
+		}
+		else
+		{
+			$result = $this->_current_collection->findOne($conds, $selected_fields);
 		}
 
-		return $this->_current_collection->findOne($conds, $selected_fields);
+		return $result;
 	}
 
 	private function _update()
@@ -300,7 +381,7 @@ class Drv_MongoDB extends Drv
 		if ($this->_safe) $options['safe'] = TRUE;
 		if ($this->_fsync) $options['fsync'] = TRUE;
 		$options['justOne'] = (bool) (!$this->_multiple);
-		$this->_current_collection->remove($this->_parse_where($this->_conditions), $this->_options);
+		$this->_current_collection->remove($this->_parse_where($this->_conditions), $options);
 		return TRUE;
 	}
 
@@ -344,24 +425,30 @@ class Drv_MongoDB extends Drv
 		return $q['n'];
 	}
 
-	function tail($milliwait = 1e3, $max_life_millis = NULL)
+	function tail($max_life_millis = NULL, $milliwait = 1e3)
 	{
 		$this->_tailable = TRUE;
-		$this->_tailable_wait = $milliwait;
 		$this->_tailable_max_life = $max_life_millis;
+		$this->_tailable_wait = $milliwait;
 		return $this;
 	}
 
 	// Modifiers
 	function inc($key, $by = 1)
 	{
-		$this->_modifiers['$inc'][$key] = ctype_digit((string)$by)?(int)$by:(float)$by;
+		$this->_modifiers['$inc'][(string)$key] = ctype_digit((string)$by)?(int)$by:(float)$by;
 		return $this;
 	}
 
 	function dec($key, $by = 1)
 	{
-		$this->_modifiers['$inc'][$key] = - (ctype_digit((string)$by)?(int)$by:(float)$by);
+		$this->_modifiers['$inc'][(string)$key] = - (ctype_digit((string)$by)?(int)$by:(float)$by);
+		return $this;
+	}
+
+	function push($key, $value)
+	{
+		$this->_modifiers['$push'][(string)$key] = $value;
 		return $this;
 	}
 
@@ -372,7 +459,7 @@ class Drv_MongoDB extends Drv
 			case 'unset':
 				foreach ($arguments as $arg)
 				{
-					$this->_modifiers['$unset'][$arg] = 1;
+					$this->_modifiers['$unset'][(string)$arg] = 1;
 				}
 				break;
 		}
@@ -482,11 +569,30 @@ class Drv_MongoDB extends Drv
 	{
 		if ($this->_current_query instanceof MongoCursor)
 		{
+			if ($this->_current_query->valid()) return TRUE;
 			if ($this->_tailable)
 			{
-				return $this->_current_query->valid() || (!$this->_current_query->dead());
+				while(!$this->_current_query->hasNext())
+				{
+					if ($this->_current_query->dead())
+					{
+						$this->_current_query = NULL;
+						return FALSE;
+					}
+					if (NULL !== $this->_tailable_max_life)
+					{
+						$elapsed = (microtime(TRUE)-$this->_tailable_start)*1000;
+						if ($elapsed > $this->_tailable_max_life)
+						{
+							$this->_current_query = NULL;
+							return FALSE;
+						}
+					}
+					usleep($this->_tailable_wait*1000);
+				}
+				$this->next();
+				return TRUE;
 			}
-			return $this->_current_query->valid();
 		}
 		return FALSE;
 	}
@@ -503,36 +609,7 @@ class Drv_MongoDB extends Drv
 
 	function next()
 	{
-		if ($this->_tailable)
-		{
-			if ($this->_current_query->hasNext())
-			{
-				$this->_current_query->next();
-			}
-			else
-			{
-				do
-				{
-					if ($this->_current_query->dead())
-					{
-						$this->_current_query = NULL;
-						break;
-					}
-					if (NULL !== $this->_tailable_max_life)
-					{
-						$elapsed = (microtime(TRUE)-$this->_tailable_start)*1000;
-						if ($elapsed > $this->_tailable_max_life)
-						{
-							$this->_current_query = NULL;
-							break;
-						}
-					}
-					usleep($this->_tailable_wait*1000);
-				}
-				while(!$this->_current_query->hasNext());
-			}
-		}
-		else
+		if (NULL !== $this->_current_query)
 		{
 			$this->_current_query->next();
 		}

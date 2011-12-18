@@ -15,88 +15,10 @@
  limitations under the License.
 *************************************************************************/
 
-abstract class Drv implements Iterator
+abstract class Drv
 {
-	const DRV_UNDEFINED = 0;
-	const DRV_RAW = 1;
-	const DRV_INSERT = 2;
-	const DRV_SELECT = 3;
-	const DRV_UPDATE = 4;
-	const DRV_DELETE = 5;
-	const DRV_MAPREDUCE = 6;
-
-	protected $_type;
-	protected $_connection;
-	protected $_collection_name;
-
-	protected $_documents;
-	protected $_conditions;
-	protected $_fields;
-	protected $_unselected_fields;
-
-	protected $_map;
-	protected $_reduce;
-
-	protected $_as_object;
-
-	function __construct() {}
-
-	function new_query($name)
+	function __construct()
 	{
-		$this->_type = self::DRV_UNDEFINED;
-		$this->_collection_name = $name;
-		$this->_documents = $this->_conditions = $this->_fields = $this->_unselected_fields = NULL;
-		$this->_map = $this->_reduce = NULL;
-		$this->_as_object = FALSE;
-		return $this;
-	}
-
-	function insert($fields)
-	{
-		$this->_type = self::DRV_INSERT;
-		$this->_documents = $fields;
-		return $this;
-	}
-
-	function select($fields = NULL, $unselected_fields = NULL)
-	{
-		$this->_type = self::DRV_SELECT;
-		$this->_fields = $fields;
-		$this->_unselected_fields = $unselected_fields;
-		return $this;
-	}
-
-	function update($fields = array())
-	{
-		$this->_type = self::DRV_UPDATE;
-		$this->_fields = $fields;
-		return $this;
-	}
-
-	function delete()
-	{
-		$this->_type = self::DRV_DELETE;
-		return $this;
-	}
-
-	function where($field, $value = NULL, $operator = NULL)
-	{
-		$this->_conditions[] = array($field, $value, $operator);
-		return $this;
-	}
-
-	function mapreduce($map, $reduce)
-	{
-		$this->_type = self::DRV_MAPREDUCE;
-		$this->_map = $map;
-		$this->_reduce = $reduce;
-		return $this;
-	}
-
-	function as_obj()
-	{
-		$this->_as_object = TRUE;
-		return $this;
 	}
 
 	protected function _raise_error($error_string)
