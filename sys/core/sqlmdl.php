@@ -53,28 +53,28 @@ class SqlMdl
 			}
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 			$drv_class = 'Drv_'.$drv;
-			$this->_drv = new $class($db_config_value);
+			$this->_drv = new $drv_class($db_config_value);
 
 			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
 			self::$_drivers[$db_config_key]['functions'] = $this->_drv->register_functions();
 		}
 	}
 
-	protected function __get($name)
+	function __get($name)
 	{
 		return $this->_drv->new_query($name);
+	}
+
+	function __call($name, $arguments)
+	{
+		return call_user_func_array(self::$_drivers[$this->_config_key]['functions'][$name], $arguments);
 	}
 
 	protected function raw($query, $protect = array())
 	{
 		$this->_drv->new_query(NULL);
 		return $this->_drv->raw($query, $protect);
-	}
-
-	protected function __call($name, $arguments)
-	{
-		return call_user_func_array(self::$_drivers[$this->_config_key]['functions'][$name], $arguments);
-	}
+	}	
 }
 
 /* End of file sys/core/sqlmdl.php */
