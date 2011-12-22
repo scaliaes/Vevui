@@ -22,15 +22,15 @@ class Drv_Redis extends Drv
 	function __construct($db_config)
 	{
 		parent::__construct($db_config);
-	
+
 		try
 		{
 			$redis_port = property_exists($db_config, 'port') ? $db_config->port : 6379;
 			$redis_timeout = property_exists($db_config, 'timeout') ? $db_config->timeout : 0;
 
 			$this->_connection = new Redis();
-			$this->_connection->connect($db_config->host, $redis_port, $redis_timeout) or $this->_raise_error('Can\'t connect to Redis server');
-			
+			$this->_connection->connect($db_config->host, $redis_port, $redis_timeout);
+
 			if (property_exists($db_config, 'prefix'))
 			{
 				// use custom prefix on all keys
@@ -39,7 +39,7 @@ class Drv_Redis extends Drv
 		}
 		catch (RedisException $e)
 		{
-			$this->_raise_error($e);
+			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
 		}
 	}
 
@@ -48,7 +48,7 @@ class Drv_Redis extends Drv
 		// use built-in serialize/unserialize
 		$this->_connection->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
 	}
-	
+
 	function set_igbinary_serializer()
 	{
 		// use igBinary serialize/unserialize	
@@ -60,7 +60,7 @@ class Drv_Redis extends Drv
 		// don't serialize data
 		$this->_connection->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_NONE);
 	}
-	
+
 	function __call($method, $args)
 	{
 		try
@@ -69,7 +69,7 @@ class Drv_Redis extends Drv
 		}
 		catch(RedisException $e)
 		{
-			$this->_raise_error($e);
+			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
 		}
 	}
 }

@@ -28,10 +28,25 @@ class Drv_MySQL extends SQLDrv
 
 		$this->_current_query = $this->_current_row = NULL;
 		$this->_current_query_count = 0;
-		$this->_connection = @mysql_connect($db_config->host, $db_config->user,
-			$db_config->pass) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
-		@mysql_set_charset($db_config->char, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
-		@mysql_select_db($db_config->db, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+		$this->_connection = @mysql_connect($db_config->host, $db_config->user, $db_config->pass);
+
+		if (!$this->_connection)
+		{
+			$this->_raise_error(0, 'Can\' connect to MySQL.', __FILE__, __LINE__);
+			return;
+		}
+
+		if (!@mysql_set_charset($db_config->char, $this->_connection))
+		{
+			$this->_raise_error(@mysql_errno($this->_connection), @mysql_error($this->_connection), __FILE__, __LINE__);
+			return;
+		}
+
+		if (!@mysql_select_db($db_config->db, $this->_connection));
+		{
+			$this->_raise_error(@mysql_errno($this->_connection), @mysql_error($this->_connection), __FILE__, __LINE__);
+			return;
+		}
 	}
 
 	function register_functions()
@@ -102,14 +117,20 @@ class Drv_MySQL extends SQLDrv
 			case self::SQL_DELETE:
 				return $this->_delete();
 			default:
-				$this->_raise_error('Unknown query type '.$this->_type);
+				$$this->_raise_error(0, 'Unknown query type '.$this->_type, __FILE__, __LINE__);
 		}
+		return NULL;
 	}
 
 	private function _exec()
 	{
 		$query = $this->string();
-		$q = @mysql_unbuffered_query($query, $this->_connection) or $this->_raise_error(@mysql_errno($this->_connection).': '.@mysql_error($this->_connection));
+		$q = @mysql_unbuffered_query($query, $this->_connection);
+		if (!$q)
+		{
+			$this->_raise_error(@mysql_errno($this->_connection), @mysql_error($this->_connection), __FILE__, __LINE__);
+			return NULL;
+		}
 		return $q;
 	}
 
@@ -392,7 +413,11 @@ class Drv_MySQL extends SQLDrv
 
 	function rewind()
 	{
-		if ($this->_current_query) $this->_raise_error('Rewind not allowed here');
+		if ($this->_current_query)
+		{
+			$this->_raise_error(0, 'Rewind not allowed here.', __FILE__, __LINE__);
+			return;
+		}
 
 		$this->_current_query = $this->_exec();
 		if (TRUE !== $this->_current_query)

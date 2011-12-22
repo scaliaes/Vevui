@@ -55,7 +55,7 @@ class Ctrl
 	{
 		$this->_core->crender($view_name, $vars);
 	}
-	
+
 	protected function redir($location, $code = 301)
 	{
 		switch($code)
@@ -87,6 +87,11 @@ class Ctrl
 	function enable_errors()
 	{
 		$this->_core->enable_errors();
+	}
+
+	function error_handler($callback)
+	{
+		$this->_core->register_error_handler($callback);
 	}
 
 	function __destruct()

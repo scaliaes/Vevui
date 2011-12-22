@@ -75,7 +75,7 @@ class Drv_MongoDB extends Drv implements Iterator
 		}
 		catch (MongoException $e)
 		{
-			$this->_raise_error($e);
+			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
 		}
 	}
 
@@ -210,13 +210,15 @@ class Drv_MongoDB extends Drv implements Iterator
 				case self::DRV_MAPREDUCE:
 					return $this->_mapreduce();
 				default:
-					$this->_raise_error('Unknown query type '.$this->_type);
+					$this->_raise_error(0, 'Unknown query type '.$this->_type, __FILE__, __LINE__);
 			}
 		}
 		catch (MongoException $e)
 		{
-			$this->_raise_error($e);
+			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
 		}
+
+		return NULL;
 	}
 
 	function exec()
@@ -402,11 +404,17 @@ class Drv_MongoDB extends Drv implements Iterator
 		}
 		catch (MongoException $e)
 		{
-			$this->_raise_error($e);
+			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+			return NULL;
 		}
+
 		if (!$q['ok'])
-			$this->_raise_error($q['errmsg']);
-		return $q['results'];
+		{
+			return $q['results'];
+		}
+
+		$this->_raise_error(0, $q['errmsg'], __FILE__, __LINE__);
+		return NULL;
 	}
 
 	function affected_documents()
@@ -417,12 +425,17 @@ class Drv_MongoDB extends Drv implements Iterator
 		}
 		catch (MongoException $e)
 		{
-			$this->_raise_error($e);
+			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+			return NULL;
 		}
 
-		if (!$q['ok'])
-			$this->_raise_error($q['err']);
-		return $q['n'];
+		if ($q['ok'])
+		{
+			return $q['n'];
+		}
+
+		$this->_raise_error(0, $q['err'], __FILE__, __LINE__);
+		return NULL;
 	}
 
 	function tail($max_life_millis = NULL, $milliwait = 1e3)

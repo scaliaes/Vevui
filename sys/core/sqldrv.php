@@ -202,15 +202,11 @@ abstract class SQLDrv implements Iterator
 		return $this;
 	}
 
-	protected function _raise_error($error_string)
+	protected function _raise_error($errno, $error_string, $file, $line)
 	{
 		$core = & Vevui::get();
-		
-		// TODO: store error_string in error database
-		if($core->e->app->debug)
-			echo '<p>'.$error_string.'</p>';
 
-		$core->internal_error();
+		$core->error_handler($errno, $error_string, $file, $line);
 	}
 
 	abstract function register_functions();

@@ -33,6 +33,10 @@ class Vevui
 
 	private $_error = FALSE;
 
+	private $_error_handler = NULL;
+
+	private $_uri = NULL;
+
 	static public function & get()
 	{
 		if (is_null(self::$_core))
@@ -57,28 +61,33 @@ class Vevui
 				case E_USER_ERROR:
 				case E_PARSE:
 				case E_RECOVERABLE_ERROR:
-					$this->_shutdown_error_handler($type, $error['file'], $error['line'], $error['message']);
+					$this->_shutdown_error_handler($type, $error['message'], $error['file'], $error['line']);
+					die();
 			}
 		}
 	}
 
 	public function exception_handler($e)
 	{
+		$this->_call_error_handler($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+
 		if(FALSE === $this->e->app->debug)
 		{
-			$this->_shutdown_error_handler($e->getCode(), $e->getFile(), $e->getLine(), $e->getMessage());
+			$this->_shutdown_error_handler($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+			die();
 		}
 		else
 		{
 			echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
 			echo '<pre>EH: '; print_r($e); echo '</pre></div>';
-			die();
 		}
 	}
 
 	public function error_handler($errno, $errstr, $errfile, $errline)
 	{
 		if (__FILE__ == $errfile) $this->not_found();
+
+		if (TRUE === $this->_call_error_handler($errno, $errstr, $errfile, $errline)) return TRUE;
 
 		switch($errno)
 		{
@@ -101,7 +110,8 @@ class Vevui
 			case E_USER_DEPRECATED:
 				if(FALSE === $this->e->app->debug)
 				{
-					$this->_shutdown_error_handler($errno, $errfile, $errline, $errstr);
+					$this->_shutdown_error_handler($errno, $errstr, $errfile, $errline);
+					die();
 				}
 				else
 				{
@@ -114,12 +124,15 @@ class Vevui
 						'line' => $errline
 					);
 					echo '<pre>EH: '; print_r($error); echo '</pre></div>';
+					$this->_call_error_handler($errno, $errstr, $errfile, $errline);
 				}
 				break;
 		}
+
+		return TRUE;
 	}
 
-	private function _shutdown_error_handler($type, $file, $line, $message)
+	private function _shutdown_error_handler($type, $message, $file, $line)
 	{
 		if ($this->_error) return;
 		$this->_error = TRUE;
@@ -200,6 +213,8 @@ class Vevui
 				$values['class'] = "'".$db->escapeString($this->_request_class)."'";
 				$values['method'] = "'".$db->escapeString($this->_request_method)."'";
 
+				$values['uri'] = NULL===$this->_uri?'NULL':"'".$db->escapeString($this->_uri)."'";
+
 				$input = array();
 				if ($_GET) $input['_GET'] = $_GET;
 				if ($_POST) $input['_POST'] = $_POST;
@@ -231,15 +246,17 @@ class Vevui
 								count INT NOT NULL,
 								class VARCHAR(255) NOT NULL,
 								method VARCHAR(255) NOT NULL,
+								uri TEXT NULL,
 								input TEXT NOT NULL,
 							CONSTRAINT uniq UNIQUE (file ASC, line ASC, type ASC, slice ASC)
 							)';
+					$db->exec($sql);
+					$sql = 'INSERT OR IGNORE INTO errors ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
 					$db->exec($sql);
 				}
 				$db->close();
 			}
 		}
-		die();
 	}
 
 	protected function __construct()
@@ -251,18 +268,30 @@ class Vevui
 		set_exception_handler(array($this, 'exception_handler'));
 	}
 
+	public function register_error_handler($callback)
+	{
+		$this->_error_handler = $callback;
+	}
+
 	public function route()
 	{
 		$app = $this->e->app;
-		$uri = $_SERVER['REQUEST_URI'];
+		$this->_uri = $_SERVER['REQUEST_URI'];
+
+		// Strip /index.php if exists.
+		$pos = strpos($this->_uri, '/index.php');
+		if (0 === $pos)
+		{
+			$this->_uri = substr($this->_uri, strlen('/index.php'));
+		}
 
 		// Check if query string is activated
 		if($app->query_string)
 		{
-			if(FALSE !== ($query_pos = strpos($uri, '?')))
+			if(FALSE !== ($query_pos = strpos($this->_uri, '?')))
 			{
-				$query_string = substr($uri, $query_pos + 1);
-				$uri = substr($uri, 0, $query_pos);
+				$query_string = substr($this->_uri, $query_pos + 1);
+				$this->_uri = substr($this->_uri, 0, $query_pos);
 
 				// Check if query string character set is valid
 				if(!preg_match('/^[=&'.$app->url_chars.']+$/i', $query_string))
@@ -276,33 +305,31 @@ class Vevui
 			foreach($app->routes as $pattern=>$redir)
 			{
 				$count = 0;
-				$uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $uri, 1, $count);
+				$this->_uri = preg_replace('/'.str_replace('/', '\\/', $pattern).'/', $redir, $this->_uri, 1, $count);
 				if ($count) break;
 			}
 		}
 
 		// Check if URI character set is valid
-		if(!preg_match('/^[\/'.$app->url_chars.']+$/i', $uri))
+		if(!preg_match('/^[\/'.$app->url_chars.']+$/i', $this->_uri))
 			$this->not_found();
 
-		$uri_segs = explode('/', urldecode($uri));
+		$uri_segs = explode('/', urldecode($this->_uri));
 		$uri_segs_count = count($uri_segs);
 
-		$start = ($uri_segs[1] == 'index.php')?2:1;
 		$this->_request_class = $app->default_controller;
 		$this->_request_method = 'index';
 		$request_params = array();
 
-		if ('' !== $uri_segs[$start])
-			$this->_request_class = strtolower($uri_segs[$start]);
+		if ('' !== $uri_segs[1])
+			$this->_request_class = strtolower($uri_segs[1]);
 
-		++$start;
-		if ($start < $uri_segs_count)
+		if (2 < $uri_segs_count)
 		{
-			if ('' !== $uri_segs[$start])
-				$this->_request_method = $uri_segs[$start];
+			if ('' !== $uri_segs[2])
+				$this->_request_method = $uri_segs[2];
 
-			$request_params = array_slice($uri_segs, $start+1);
+			$request_params = array_slice($uri_segs, 3);
 		}
 
 		// Call controller/method
@@ -441,10 +468,11 @@ class Vevui
 
 	private function _call_error_handler()
 	{
-		if ($this->_request_ctrl && is_callable(array($this->_request_ctrl, '_error_handler')))
+		if (NULL !== $this->_error_handler)
 		{
-			call_user_func_array(array($this->_request_ctrl, '_error_handler'), func_get_args());
+			return call_user_func_array($this->_error_handler, func_get_args());
 		}
+		return NULL;
 	}
 }
 
