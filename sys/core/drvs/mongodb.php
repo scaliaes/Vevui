@@ -192,7 +192,8 @@ class Drv_MongoDB extends Drv implements Iterator
 		}
 		else
 		{
-			$this->_current_collection = $this->_collections[$this->_db_name][$this->_collection_name] = $this->_db->{$this->_collection_name};
+			$this->_current_collection = & $this->_db->{$this->_collection_name};
+			$this->_collections[$this->_db_name][$this->_collection_name] = & $this->_current_collection;
 		}
 
 		try
