@@ -31,12 +31,12 @@ class SqlMdl
 		if (NULL === $db_index)
 		{
 			$db_config_key = $config->default_schema;
-			$db_config_value = $config->db->{$db_config_key};
+			$db_config_value = $config->databases->{$db_config_key};
 		}
 		else
 		{
 			$db_config_key = $db_index;
-			$db_config_value = $config->db->{$db_index};
+			$db_config_value = $config->databases->{$db_index};
 		}
 
 		if (array_key_exists($db_config_key, self::$_drivers))

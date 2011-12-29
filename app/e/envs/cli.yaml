@@ -14,30 +14,31 @@
 # limitations under the License.
 ##########################################################################
 
-# Basic configuration
-debug: true
-profiling: 0.15
-log_errors: ROOT_PATH/data/errors.db	# Leave blank or comment out to disable.
+db:
+  databases:
+    mydb:
+      drv: mysql
+      host: localhost
+      user: dbuser
+      pass: changeme
+      db: test
+      char: UTF8
 
-# Controller loaded by default
-default_controller: main
+    mymongo:
+      drv: mongodb
+      host: localhost
+      db: test
 
-# Allowed chars in URI (case insensitive, PCRE style)
-# Warning: changing this value may be dangerous, the character '-' must be at the end or escaped
-url_chars: a-z0-9_-
+    myredis:
+      drv: redis
+      host: localhost
+      port: 6379
+      timeout: 10
+      prefix: "myapp:"
+  default_schema: mymongo
 
-# Allow query string in URI
-query_string: false
+app:
+  debug: true
+  cache: false
 
-# Cache system
-cache_path: ROOT_PATH/cache/html
-cache: false
-
-# Config minimum recheck time, in seconds. Set to 0 to disable rechecking.
-config_ttl: 60
-
-# Routing system (case insensitive, PCRE style)
-routes:
-  ^/sample/(.*): /main/index/\1
-
-# End of file app/e/app.yaml
+# End of file app/e/envs/cli.yaml

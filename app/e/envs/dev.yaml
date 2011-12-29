@@ -15,24 +15,30 @@
 ##########################################################################
 
 db:
-  mydb:
-    drv: mysql
-    host: localhost
-    user: dbuser
-    pass: changeme
-    db: test
-    char: UTF8
-  mymongo:
-    drv: mongodb
-    host: localhost
-    db: test
-  myredis:
-    drv: redis
-    host: localhost
-    port: 6379
-    timeout: 10
-    prefix: "myapp:"
+  databases:
+    mydb:
+      drv: mysql
+      host: localhost
+      user: dbuser
+      pass: changeme
+      db: test
+      char: UTF8
 
-default_schema: mymongo
+    mymongo:
+      drv: mongodb
+      host: localhost
+      db: test
 
-# End of file app/e/db.yaml
+    myredis:
+      drv: redis
+      host: localhost
+      port: 6379
+      timeout: 10
+      prefix: "myapp:"
+  default_schema: mymongo
+
+app:
+  debug: true
+  cache: false
+
+# End of file app/e/envs/dev.yaml

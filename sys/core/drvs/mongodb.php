@@ -57,6 +57,8 @@ class Drv_MongoDB extends Drv implements Iterator
 
 	private $_current_query;
 
+	private $_in_debug;
+
 	function __construct($db_config)
 	{
 		parent::__construct($db_config);
@@ -77,6 +79,9 @@ class Drv_MongoDB extends Drv implements Iterator
 		{
 			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
 		}
+
+		$core = & Vevui::get();
+		$this->_in_debug = $core->e->app->debug;
 	}
 
 	function new_query($name)
@@ -196,6 +201,10 @@ class Drv_MongoDB extends Drv implements Iterator
 			$this->_collections[$this->_db_name][$this->_collection_name] = & $this->_current_collection;
 		}
 
+		if ($this->_in_debug)
+		{
+			$this->safe();
+		}
 		try
 		{
 			switch($this->_type)

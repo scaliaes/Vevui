@@ -19,11 +19,14 @@
   Vevui configuration options
  **********************************************************/
 
-/* Path where the sys folder is located */
+/* Path where the sys folder is located. */
 $sys_path = '../sys';
 
-/* Path where the app folder is located */
+/* Path where the app folder is located. */
 $app_path = '../app';
+
+/* Environment to use. */
+$environment = 'dev';
 
 /***********************************************************
   DON'T EDIT BELOW THIS LINE (UNLESS YOU ARE A DEVELOPER ;)
@@ -34,6 +37,19 @@ define('VEVUI_VERSION', '0.1a');
 define('ROOT_PATH', __DIR__.'/..');
 define('SYS_PATH', __DIR__.'/'.$sys_path);
 define('APP_PATH', __DIR__.'/'.$app_path);
+
+define('CONFIG_CACHE_PATH', __DIR__.'/../cache');
+
+define('APP_CONTROLLERS_PATH', APP_PATH.'/c');
+define('APP_CONFIG_PATH', APP_PATH.'/e');
+define('APP_HELPERS_PATH', APP_PATH.'/h');
+define('APP_LIBRARIES_PATH', APP_PATH.'/l');
+define('APP_MODELS_PATH', APP_PATH.'/m');
+define('APP_ERROR_TEMPLATES_PATH', '../o');	// This is a path relative to the views folder.
+define('APP_VIEWS_PATH', APP_PATH.'/v');
+define('APP_EXTENSIONS_PATH', APP_PATH.'/x');
+
+define('ENVIRONMENT', $environment);
 
 require(SYS_PATH.'/core/core.php');
 

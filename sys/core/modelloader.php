@@ -22,13 +22,14 @@ class ModelLoader
 		$core = & Vevui::get();
 		$loadnosqlmdl = $loadsqlmdl = FALSE;
 
-		foreach($core->e->db->db as $db)
+		foreach($core->e->db->databases as $db)
 		{
 			if (!$loadnosqlmdl)
 			{
 				switch($db->drv)
 				{
 					case 'mongodb':
+					case 'redis':
 						$loadnosqlmdl = TRUE;
 				}
 			}
@@ -37,17 +38,19 @@ class ModelLoader
 				switch($db->drv)
 				{
 					case 'mysql':
+					case 'sqlite3':
 						$loadsqlmdl = TRUE;
 				}
 			}
 		}
+
 		if ($loadnosqlmdl) require(SYS_PATH.'/core/mdl.php');
 		if ($loadsqlmdl) require(SYS_PATH.'/core/sqlmdl.php');
 	}
 
 	function __get($model_name)
 	{
-		require(APP_PATH.'/m/'.$model_name.'.php');
+		require(APP_MODELS_PATH.'/'.$model_name.'.php');
 		return $this->{$model_name} = new $model_name();
 	}
 }

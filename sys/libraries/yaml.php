@@ -36,14 +36,39 @@ class Yaml extends Lib
 				case is_string($value):
 					switch(TRUE)
 					{
-						case 0===strncmp($value, 'ROOT_PATH', 9):
-							$value = ROOT_PATH.substr($value, 9);
+						case 0===strncmp($value, 'ROOT_PATH', strlen('ROOT_PATH')):
+							$value = ROOT_PATH.substr($value, strlen('ROOT_PATH'));
 							break;
-						case 0===strncmp($value, 'APP_PATH', 8):
-							$value = APP_PATH.substr($value, 8);
+						case 0===strncmp($value, 'APP_PATH', strlen('APP_PATH')):
+							$value = APP_PATH.substr($value, strlen('APP_PATH'));
 							break;
-						case 0===strncmp($value, 'SYS_PATH', 8):
-							$value = SYS_PATH.substr($value, 8);
+						case 0===strncmp($value, 'SYS_PATH', strlen('SYS_PATH')):
+							$value = SYS_PATH.substr($value, strlen('SYS_PATH'));
+							break;
+
+						case 0===strncmp($value, 'APP_CONTROLLERS_PATH', strlen('APP_CONTROLLERS_PATH')):
+							$value = APP_CONTROLLERS_PATH.substr($value, strlen('APP_CONTROLLERS_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_CONFIG_PATH', strlen('APP_CONFIG_PATH')):
+							$value = APP_CONFIG_PATH.substr($value, strlen('APP_CONFIG_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_HELPERS_PATH', strlen('APP_HELPERS_PATH')):
+							$value = APP_HELPERS_PATH.substr($value, strlen('APP_HELPERS_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_LIBRARIES_PATH', strlen('APP_LIBRARIES_PATH')):
+							$value = APP_LIBRARIES_PATH.substr($value, strlen('APP_LIBRARIES_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_MODELS_PATH', strlen('APP_MODELS_PATH')):
+							$value = APP_MODELS_PATH.substr($value, strlen('APP_MODELS_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_ERROR_TEMPLATES_PATH', strlen('APP_ERROR_TEMPLATES_PATH')):
+							$value = APP_VIEWS_PATH.'/'.APP_ERROR_TEMPLATES_PATH.substr($value, strlen('APP_ERROR_TEMPLATES_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_VIEWS_PATH', strlen('APP_VIEWS_PATH')):
+							$value = APP_VIEWS_PATH.substr($value, strlen('APP_VIEWS_PATH'));
+							break;
+						case 0===strncmp($value, 'APP_EXTENSIONS_PATH', strlen('APP_EXTENSIONS_PATH')):
+							$value = APP_EXTENSIONS_PATH.substr($value, strlen('APP_EXTENSIONS_PATH'));
 							break;
 					}
 					break;

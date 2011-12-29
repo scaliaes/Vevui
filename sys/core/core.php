@@ -15,7 +15,6 @@
  limitations under the License.
 *************************************************************************/
 
-$config = array();
 $globals = array();
 $globals['start_time'] = microtime(TRUE);
 
@@ -275,8 +274,7 @@ class Vevui
 
 	public function route()
 	{
-		$app = $this->e->app;
-		$this->_uri = $_SERVER['REQUEST_URI'];
+		$this->_uri = urldecode($_SERVER['REQUEST_URI']);
 
 		// Strip /index.php if exists.
 		$pos = strpos($this->_uri, '/index.php');
@@ -285,6 +283,7 @@ class Vevui
 			$this->_uri = substr($this->_uri, strlen('/index.php'));
 		}
 
+		$app = $this->e->app;
 		// Check if query string is activated
 		if($app->query_string)
 		{
@@ -314,7 +313,7 @@ class Vevui
 		if(!preg_match('/^[\/'.$app->url_chars.']+$/i', $this->_uri))
 			$this->not_found();
 
-		$uri_segs = explode('/', urldecode($this->_uri));
+		$uri_segs = explode('/', $this->_uri);
 		$uri_segs_count = count($uri_segs);
 
 		$this->_request_class = $app->default_controller;
@@ -333,7 +332,7 @@ class Vevui
 		}
 
 		// Call controller/method
-		$filepath = APP_PATH.'/c/'.$this->_request_class.'.php';
+		$filepath = APP_CONTROLLERS_PATH.'/'.$this->_request_class.'.php';
 
 		require(SYS_PATH.'/core/ctrl.php');
 		require($filepath);
@@ -395,7 +394,10 @@ class Vevui
 	public function crender($view_name, $vars = array())
 	{
 		$output = $this->render($view_name, $vars, FALSE);
-		$this->l->cache->set($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], $output);
+		if ($this->e->app->cache)
+		{
+			$this->l->cache->set($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], $output);
+		}
 		echo $output;
 	}
 
@@ -424,7 +426,7 @@ class Vevui
 		}
 
 		header('HTTP/1.0 404 Not Found');
-		Haanga::Load('../o/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+		Haanga::Load(APP_ERROR_TEMPLATES_PATH.'/404.html', array('resource' => $_SERVER['REQUEST_URI']));
 	}
 
 	public function not_found()
@@ -445,7 +447,7 @@ class Vevui
 		}
 
 		header('HTTP/1.0 500 Internal Server Error');
-		Haanga::Load('../o/500.html', array('resource' => $_SERVER['REQUEST_URI']));
+		Haanga::Load(APP_ERROR_TEMPLATES_PATH.'/500.html', array('resource' => $_SERVER['REQUEST_URI']));
 	}
 
 	public function internal_error()

@@ -26,8 +26,8 @@ class LibraryLoader
 
 	function __get($library_name)
 	{
-		$folder = $this->_user_libraries?APP_PATH.'/l/':SYS_PATH.'/libraries/';
-		require($folder.$library_name.'.php');
+		$folder = $this->_user_libraries?APP_LIBRARIES_PATH:SYS_PATH.'/libraries';
+		require($folder.'/'.$library_name.'.php');
 		return $this->{$library_name} = new $library_name();
 	}
 }

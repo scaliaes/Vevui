@@ -19,7 +19,7 @@ class Helper
 {
 	public function __construct($folder, $helper_name)
 	{
-		require($folder.$helper_name.'.php');
+		require($folder.'/'.$helper_name.'.php');
 	}
 
 	function __call($name, $args)
@@ -39,7 +39,7 @@ class HelperLoader
 
 	function __get($helper_name)
 	{
-		$folder = $this->_user_helpers?APP_PATH.'/h/':SYS_PATH.'/helpers/';
+		$folder = $this->_user_helpers?APP_HELPERS_PATH:SYS_PATH.'/helpers';
 		return $this->{$helper_name} = new Helper($folder, $helper_name);
 	}
 }

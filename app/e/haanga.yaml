@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-template_dir: APP_PATH/v/
+template_dir: APP_ERROR_TEMPLATES_PATH
 cache_dir: ROOT_PATH/cache/haanga	# This is where the compiled views will be cached.
 autoload: true					# true by default, must be false if we have an autoloader.
 compiler:		# Options for the template compiler
