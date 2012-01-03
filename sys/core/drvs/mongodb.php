@@ -78,6 +78,7 @@ class Drv_MongoDB extends Drv implements Iterator
 		catch (MongoException $e)
 		{
 			$this->_raise_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+			return;
 		}
 
 		$core = & Vevui::get();

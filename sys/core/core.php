@@ -401,14 +401,36 @@ class Vevui
 		echo $output;
 	}
 
+	private function _load_haanga()
+	{
+		require(SYS_PATH.'/haanga/lib/Haanga.php');
+		require(SYS_PATH.'/plugins/haanga.php');
+		$config = $this->e->haanga;
+		Haanga::configure($config);
+
+		$locales = array();
+		foreach($this->l->client->langs as $lang)
+		{
+			foreach($this->l->client->charsets as $enc)
+			{
+				if ('*' != $enc) $locales[] = $lang.'.'.strtolower($enc);
+			}
+			$locales[] = $lang;
+		}
+
+		$domain = $this->e->i18n->domain;
+		putenv('LC_ALL='.implode(',', $locales));
+		setlocale(LC_ALL, $locales);
+		bindtextdomain($domain, $this->e->i18n->path);
+		bind_textdomain_codeset($domain, $this->e->i18n->charset);
+		textdomain($domain);		
+	}
+
 	public function render($view_name, $vars = array(), $print_output = TRUE)
 	{
 		if (!$this->_haanga_loaded)
 		{
-			require(SYS_PATH.'/haanga/lib/Haanga.php');
-			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->haanga;
-			Haanga::configure($config);
+			$this->_load_haanga();
 			$this->_haanga_loaded = TRUE;
 		}
 		return Haanga::Load($view_name.'.html', $vars, TRUE);
@@ -418,10 +440,7 @@ class Vevui
 	{
 		if (!$this->_haanga_loaded)
 		{
-			require(SYS_PATH.'/haanga/lib/Haanga.php');
-			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->haanga;
-			Haanga::configure($config);
+			$this->_load_haanga();
 			$this->_haanga_loaded = TRUE;
 		}
 
@@ -439,10 +458,7 @@ class Vevui
 	{
 		if (!$this->_haanga_loaded)
 		{
-			require(SYS_PATH.'/haanga/lib/Haanga.php');
-			require(SYS_PATH.'/plugins/haanga.php');
-			$config = $this->e->haanga;
-			Haanga::configure($config);
+			$this->_load_haanga();
 			$this->_haanga_loaded = TRUE;
 		}
 

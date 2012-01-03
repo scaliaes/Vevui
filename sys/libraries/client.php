@@ -17,6 +17,18 @@
 
 class Client extends Lib
 {
+	private function _parse_accept($header)
+	{
+		$parts = array();
+		foreach(explode(',', $header) as $part)
+		{
+			$pos = strpos($part, ';');
+			if (FALSE !== $pos) $part = substr($part, 0, $pos);
+			$parts[] = trim($part);
+		}
+		return array_unique($parts);
+	}
+
 	function __get($name)
 	{
 		switch($name)
@@ -30,11 +42,36 @@ class Client extends Lib
 			case 'langs':
 				if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER))
 				{
-					$accept_header = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-					$pos = strpos($accept_header, ';');
-					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
+					$langs = array();
+					foreach($this->_parse_accept($_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lang)
+					{
+						$lang = str_replace('-', '_', $lang);
 
-					return $this->$name = array_map('trim', explode(',', $accept_header));
+						$parts = explode('_', $lang, 3);
+						if (array_key_exists(1, $parts))
+						{
+							if (array_key_exists(2, $parts))
+							{
+								$parts[1] = ucfirst($parts[1]);
+								$parts[2] = strtoupper($parts[2]);
+							}
+							else
+							{
+								if (3 < strlen($parts[1]))
+								{
+									$parts[1] = ucfirst($parts[1]);
+								}
+								else
+								{
+									$parts[1] = strtoupper($parts[1]);
+								}
+							}
+						}
+						$lang = implode('_', $parts);
+
+						$langs[] = $lang;
+					}
+					return $this->$name = array_unique($langs);
 				}
 
 				$ua = $this->ua;
@@ -49,33 +86,21 @@ class Client extends Lib
 			case 'charsets':
 				if (array_key_exists('HTTP_ACCEPT_CHARSET', $_SERVER))
 				{
-					$accept_header = $_SERVER['HTTP_ACCEPT_CHARSET'];
-					$pos = strpos($accept_header, ';');
-					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
-
-					return $this->$name = array_map('trim', explode(',', $accept_header));
+					return $this->$name = $this->_parse_accept($_SERVER['HTTP_ACCEPT_CHARSET']);
 				}
 
 				return $this->$name = array();
 			case 'encodings':
 				if (array_key_exists('HTTP_ACCEPT_ENCODING', $_SERVER))
 				{
-					$accept_header = $_SERVER['HTTP_ACCEPT_ENCODING'];
-					$pos = strpos($accept_header, ';');
-					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
-
-					return $this->$name = array_map('trim', explode(',', $accept_header));
+					return $this->$name = $this->_parse_accept($_SERVER['HTTP_ACCEPT_ENCODING']);
 				}
 
 				return $this->$name = array();
 			case 'accept':
 				if (array_key_exists('HTTP_ACCEPT', $_SERVER))
 				{
-					$accept_header = $_SERVER['HTTP_ACCEPT'];
-					$pos = strpos($accept_header, ';');
-					if (FALSE !== $pos) $accept_header = substr($accept_header, 0, $pos);
-
-					return $this->$name = array_map('trim', explode(',', $accept_header));
+					return $this->$name = $this->_parse_accept($_SERVER['HTTP_ACCEPT']);
 				}
 
 				return $this->$name = array();

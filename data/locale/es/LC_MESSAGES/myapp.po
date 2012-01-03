@@ -12,17 +12,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Vevui 0.5b\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Antonio Nicolás Pina <anpina@vevui.org>\n"
+"Language-Team: Vevui\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
 ##########################################################################
+#: app/v/main_index.html:3
+msgid "Hello world!"
+msgstr "Hola mundo!"
 
-template_dir: APP_VIEWS_PATH
-cache_dir: ROOT_PATH/cache/haanga	# This is where the compiled views will be cached.
-autoload: true					# true by default, must be false if we have an autoloader.
-compiler:		# Options for the template compiler
-  if_empty: false					# Avoid use if empty($var)
-  autoescape: false				# We are smart enough to know when to escape.
-  strip_whitespace: true	# Save some bandwidth.
-  allow_exec: true				# Allow calling to php functions from templates.
-  global:
-    - globals							# global $globals
+##########################################################################
+#: app/v/main_index.html:6
+#, python-format
+msgid "Welcome to %s!"
+msgstr "Bienvenido a %s!"
 
-# End of file app/e/haanga.yaml
+##########################################################################
+#: app/v/main_index.html:7
+msgid "Page rendered in "
+msgstr "P&aacute;gina renderizada en "

@@ -16,6 +16,10 @@
 
 db:
   databases:
+    mysqlite3:
+      drv: sqlite3
+      file: ROOT_PATH/data/db.sqlite3
+
     mydb:
       drv: mysql
       host: localhost

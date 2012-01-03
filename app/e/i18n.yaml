@@ -14,15 +14,13 @@
 # limitations under the License.
 ##########################################################################
 
-template_dir: APP_VIEWS_PATH
-cache_dir: ROOT_PATH/cache/haanga	# This is where the compiled views will be cached.
-autoload: true					# true by default, must be false if we have an autoloader.
-compiler:		# Options for the template compiler
-  if_empty: false					# Avoid use if empty($var)
-  autoescape: false				# We are smart enough to know when to escape.
-  strip_whitespace: true	# Save some bandwidth.
-  allow_exec: true				# Allow calling to php functions from templates.
-  global:
-    - globals							# global $globals
+# Text domain, usually it is set to your application name.
+domain: myapp
 
-# End of file app/e/haanga.yaml
+# Path to the locale directory.
+path: ROOT_PATH/data/locale
+
+# Charset of printed messages.
+charset: UTF-8
+
+# End of file app/e/i18n.yaml

@@ -1,9 +1,9 @@
 <html>
 <head>
-	<title>{{ title|default:'Hello world' }}</title>
+	<title>{{ title|default:'Hello world!'|trans }}</title>
 </head>
 <body>
-	<h1>Welcome to {{ app['name'] }}!</h1>
-	<p>Page rendered in {% elapsedtime %} s.</p>
+	<h1>{% trans _('Welcome to %s!') app['name'] %}</h1>
+	<p>{% trans _('Page rendered in ') %} {% elapsedtime %} s.</p>
 </body>
 </html>
