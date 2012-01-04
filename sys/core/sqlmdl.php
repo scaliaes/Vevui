@@ -22,6 +22,7 @@ class SqlMdl
 	private $_core;
 
 	private $_drv;
+	private $_config_key;
 
 	function __construct($db_index = NULL)
 	{
@@ -52,12 +53,14 @@ class SqlMdl
 				self::$_sqldrv_loaded = TRUE;
 			}
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
+
 			$drv_class = 'Drv_'.$drv;
 			$this->_drv = new $drv_class($db_config_value);
 
 			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
 			self::$_drivers[$db_config_key]['functions'] = $this->_drv->register_functions();
 		}
+		$this->_config_key = $db_config_key;
 	}
 
 	function __get($name)
