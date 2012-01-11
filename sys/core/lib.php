@@ -29,6 +29,11 @@ class Lib
 		return $this->{$prop_name} = & $this->_core->{$prop_name};
 	}
 
+	function __call($name, $arguments)
+	{
+		return call_user_func_array(array($this->_core, $name), $arguments);
+	}
+
 	function disable_errors()
 	{
 		$this->_core->disable_errors();
