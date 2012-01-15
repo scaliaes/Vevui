@@ -19,9 +19,15 @@ class Yaml extends Lib
 {
 	private static $_parser;
 
-	public function  __construct()
+	public static function _install(&$extensions, &$files, &$directories)
 	{
-		parent::__construct();
+		$files = array(SYS_PATH.'/libraries/spyc/spyc.php' => TRUE);
+		$directories = array(SYS_PATH.'/libraries/spyc' => TRUE);
+	}
+
+	public function  __construct($installation_data)
+	{
+		parent::__construct($installation_data);
 		require(SYS_PATH.'/libraries/spyc/spyc.php');
 		self::$_parser = new Spyc();
 	}
@@ -62,7 +68,7 @@ class Yaml extends Lib
 							$value = APP_MODELS_PATH.substr($value, strlen('APP_MODELS_PATH'));
 							break;
 						case 0===strncmp($value, 'APP_ERROR_TEMPLATES_PATH', strlen('APP_ERROR_TEMPLATES_PATH')):
-							$value = APP_VIEWS_PATH.'/'.APP_ERROR_TEMPLATES_PATH.substr($value, strlen('APP_ERROR_TEMPLATES_PATH'));
+							$value = APP_ERROR_TEMPLATES_PATH.substr($value, strlen('APP_ERROR_TEMPLATES_PATH'));
 							break;
 						case 0===strncmp($value, 'APP_VIEWS_PATH', strlen('APP_VIEWS_PATH')):
 							$value = APP_VIEWS_PATH.substr($value, strlen('APP_VIEWS_PATH'));

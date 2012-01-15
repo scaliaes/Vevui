@@ -26,9 +26,20 @@ class LibraryLoader
 
 	function __get($library_name)
 	{
-		$folder = $this->_user_libraries?APP_LIBRARIES_PATH:SYS_PATH.'/libraries';
+		$data = Vevui::get_installation_data();
+		if ($this->_user_libraries)
+		{
+			$folder = APP_LIBRARIES_PATH;
+			$data = array_key_exists('ul', $data) && array_key_exists($library_name, $data['ul']) ? $data['ul'][$library_name] : NULL;
+		}
+		else
+		{
+			$folder = SYS_PATH.'/libraries';
+			$data = array_key_exists('l', $data) && array_key_exists($library_name, $data['l']) ? $data['l'][$library_name] : NULL;
+		}
+
 		require($folder.'/'.$library_name.'.php');
-		return $this->{$library_name} = new $library_name();
+		return $this->{$library_name} = new $library_name($data);
 	}
 }
 

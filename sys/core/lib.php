@@ -19,9 +19,13 @@ class Lib
 {	
 	private $_core;
 
-	function __construct()
+	function __construct($installation_data = NULL)
 	{
 		$this->_core = & Vevui::get();
+		if ($installation_data && array_key_exists('missing', $installation_data))
+		{
+			$this->_core->missing_component(get_class($this), $installation_data['missing']);
+		}
 	}
 
 	function __get($prop_name)
@@ -32,16 +36,6 @@ class Lib
 	function __call($name, $arguments)
 	{
 		return call_user_func_array(array($this->_core, $name), $arguments);
-	}
-
-	function disable_errors()
-	{
-		$this->_core->disable_errors();
-	}
-
-	function enable_errors()
-	{
-		$this->_core->enable_errors();
 	}
 }
 

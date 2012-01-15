@@ -22,9 +22,14 @@ class Ctrl
 	private $_profiling;
 	private $_profile_this;
 
-	function __construct()
+	function __construct($installation_data = NULL)
 	{
 		$this->_core = & Vevui::get();
+
+		if ($installation_data && array_key_exists('missing', $installation_data))
+		{
+			$this->_core->missing_component(get_class($this), $installation_data['missing']);
+		}
 
 		$config = $this->e->app;
 

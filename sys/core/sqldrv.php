@@ -31,6 +31,8 @@ abstract class SQLDrv implements Iterator
 	const FULL_OUTER_JOIN = 4;
 	const CROSS_JOIN = 5;
 
+	private $_core;
+
 	protected $_type;
 	protected $_table;
 
@@ -49,7 +51,15 @@ abstract class SQLDrv implements Iterator
 
 	protected $_as_object;
 
-	function __construct() {}
+	function __construct($dbconfig, $installation_data = NULL)
+	{
+		$this->_core = & Vevui::get();
+
+		if ($installation_data && array_key_exists('missing', $installation_data))
+		{
+			$this->_core->missing_component(get_class($this), $installation_data['missing']);
+		}
+	}
 
 	function new_query($name)
 	{
@@ -204,9 +214,7 @@ abstract class SQLDrv implements Iterator
 
 	protected function _raise_error($errno, $error_string, $file, $line)
 	{
-		$core = & Vevui::get();
-
-		$core->error_handler($errno, $error_string, $file, $line);
+		$this->_core->error_handler($errno, $error_string, $file, $line);
 	}
 
 	abstract function register_functions();

@@ -22,9 +22,14 @@ class Drv_MySQL extends SQLDrv
 	private $_current_row;
 	private $_current_query_count;
 
-	function __construct($db_config)
+	public static function _install(&$extensions, &$files, &$directories)
 	{
-		parent::__construct($db_config);
+		$extensions = array('mysql' => TRUE);
+	}
+
+	function __construct($db_config, $installation_data = NULL)
+	{
+		parent::__construct($db_config, $installation_data);
 
 		$this->_current_query = $this->_current_row = NULL;
 		$this->_current_query_count = 0;

@@ -50,8 +50,10 @@ class ModelLoader
 
 	function __get($model_name)
 	{
+		$data = Vevui::get_installation_data();
+		$data = array_key_exists('m', $data) && array_key_exists($model_name, $data['m']) ? $data['m'][$model_name] : NULL;
 		require(APP_MODELS_PATH.'/'.$model_name.'.php');
-		return $this->{$model_name} = new $model_name();
+		return $this->{$model_name} = new $model_name($data);
 	}
 }
 

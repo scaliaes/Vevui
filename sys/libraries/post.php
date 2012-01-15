@@ -23,6 +23,7 @@ class Post extends Lib
 
 	function  __construct()
 	{
+		parent::__construct();
 		$this->_post = $_POST;
 		$this->_rules = array();
 		$this->_errors = array();

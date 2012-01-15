@@ -59,9 +59,14 @@ class Drv_MongoDB extends Drv implements Iterator
 
 	private $_in_debug;
 
-	function __construct($db_config)
+	public static function _install(&$extensions, &$files, &$directories)
 	{
-		parent::__construct($db_config);
+		$extensions = array('mongo' => TRUE);
+	}
+
+	function __construct($db_config, $installation_data = NULL)
+	{
+		parent::__construct($db_config, $installation_data);
 
 		try
 		{

@@ -18,10 +18,15 @@
 class Drv_Redis extends Drv
 {
 	private $_connection;
-	
-	function __construct($db_config)
+
+	public static function _install(&$extensions, &$files, &$directories)
 	{
-		parent::__construct($db_config);
+		$extensions = array('redis' => TRUE);
+	}
+
+	function __construct($db_config, $installation_data = NULL)
+	{
+		parent::__construct($db_config, $installation_data);
 
 		try
 		{
@@ -59,6 +64,19 @@ class Drv_Redis extends Drv
 	{
 		// don't serialize data
 		$this->_connection->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_NONE);
+	}
+
+	function register_functions()
+	{
+		return array();
+	}
+
+	function exec()
+	{
+	}
+
+	function exec_one()
+	{
 	}
 
 	function __call($method, $args)

@@ -24,9 +24,14 @@ class Mdl
 	private $_drv;
 	private $_config_key;
 
-	function __construct($db_index = NULL)
+	function __construct($db_index = NULL, $installation_data = NULL)
 	{
 		$this->_core = & Vevui::get();
+
+		if ($installation_data && array_key_exists('missing', $installation_data))
+		{
+			$this->_core->missing_component(get_class($this), $installation_data['missing']);
+		}
 
 		$config = $this->_core->e->db;
 		if (NULL === $db_index)
@@ -54,8 +59,11 @@ class Mdl
 			}
 			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
 
+			$data = Vevui::get_installation_data();
+			$data = array_key_exists('drv', $data) && array_key_exists($drv, $data['drv']) ? $data['drv'][$drv] : NULL;
+
 			$class = 'Drv_'.$drv;
-			$this->_drv = new $class($db_config_value);
+			$this->_drv = new $class($db_config_value, $data);
 
 			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
 			self::$_drivers[$db_config_key]['functions'] = $this->_drv->register_functions();

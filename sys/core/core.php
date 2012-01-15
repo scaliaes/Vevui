@@ -36,7 +36,7 @@ class Vevui
 
 	private $_uri = NULL;
 
-	static public function & get()
+	public static function & get()
 	{
 		if (is_null(self::$_core))
 		{
@@ -262,6 +262,7 @@ class Vevui
 	{
 		// Error handlers
 		error_reporting(0);
+		ini_set('display_errors', 0);
 		register_shutdown_function(array($this, 'shutdown'));
 		set_error_handler(array($this, 'error_handler'));
 		set_exception_handler(array($this, 'exception_handler'));
@@ -274,6 +275,15 @@ class Vevui
 
 	public function route()
 	{
+		$app = $this->e->app;
+
+		// Developer mode. Should show a warning.
+		if (property_exists($app, 'dev_mode') && $app->dev_mode)
+		{
+			error_reporting(E_ALL);
+			ini_set('display_errors', 1);
+		}
+
 		$this->_uri = urldecode($_SERVER['REQUEST_URI']);
 
 		// Strip /index.php if exists.
@@ -283,7 +293,6 @@ class Vevui
 			$this->_uri = substr($this->_uri, strlen('/index.php'));
 		}
 
-		$app = $this->e->app;
 		// Check if query string is activated
 		if($app->query_string)
 		{
@@ -336,7 +345,11 @@ class Vevui
 
 		require(SYS_PATH.'/core/ctrl.php');
 		require($filepath);
-		$this->_request_ctrl = new $this->_request_class();
+
+		$data = Vevui::get_installation_data();
+		$data = array_key_exists('c', $data) && array_key_exists($this->_request_class, $data['c']) ? $data['c'][$this->_request_class] : NULL;
+
+		$this->_request_ctrl = new $this->_request_class($data);
 
 		if( !is_subclass_of($this->_request_ctrl, 'Ctrl') || !strncmp($this->_request_method, '_', 1) )
 		{
@@ -408,22 +421,25 @@ class Vevui
 		$config = $this->e->haanga;
 		Haanga::configure($config);
 
-		$locales = array();
-		foreach($this->l->client->langs as $lang)
+		if ($this->e->i18n->active)
 		{
-			foreach($this->l->client->charsets as $enc)
+			$locales = array();
+			foreach($this->l->client->langs as $lang)
 			{
-				if ('*' != $enc) $locales[] = $lang.'.'.strtolower($enc);
+				foreach($this->l->client->charsets as $enc)
+				{
+					if ('*' != $enc) $locales[] = $lang.'.'.strtolower($enc);
+				}
+				$locales[] = $lang;
 			}
-			$locales[] = $lang;
-		}
 
-		$domain = $this->e->i18n->domain;
-		putenv('LC_ALL='.implode(',', $locales));
-		setlocale(LC_ALL, $locales);
-		bindtextdomain($domain, $this->e->i18n->path);
-		bind_textdomain_codeset($domain, $this->e->i18n->charset);
-		textdomain($domain);		
+			$domain = $this->e->i18n->domain;
+			putenv('LC_ALL='.implode(',', $locales));
+			setlocale(LC_ALL, $locales);
+			bindtextdomain($domain, $this->e->i18n->path);
+			bind_textdomain_codeset($domain, $this->e->i18n->charset);
+			textdomain($domain);
+		}
 	}
 
 	public function render($view_name, $vars = array(), $print_output = TRUE)
@@ -445,7 +461,12 @@ class Vevui
 		}
 
 		header('HTTP/1.0 404 Not Found');
-		Haanga::Load(APP_ERROR_TEMPLATES_PATH.'/404.html', array('resource' => $_SERVER['REQUEST_URI']));
+
+		$config = $this->e->haanga;
+		$config['template_dir'] = APP_ERROR_TEMPLATES_PATH;
+		Haanga::configure($config);
+
+		Haanga::Load('404.html', array('resource' => $_SERVER['REQUEST_URI']));
 	}
 
 	public function not_found()
@@ -463,7 +484,12 @@ class Vevui
 		}
 
 		header('HTTP/1.0 500 Internal Server Error');
-		Haanga::Load(APP_ERROR_TEMPLATES_PATH.'/500.html', array('resource' => $_SERVER['REQUEST_URI']));
+
+		$config = $this->e->haanga;
+		$config['template_dir'] = APP_ERROR_TEMPLATES_PATH;
+		Haanga::configure($config);
+
+		Haanga::Load('500.html', array('resource' => $_SERVER['REQUEST_URI']));
 	}
 
 	public function internal_error()
@@ -492,6 +518,24 @@ class Vevui
 		}
 		return NULL;
 	}
+
+	public static function get_installation_data()
+	{
+		global $_installation_data;
+		return $_installation_data;
+	}
+
+	public function missing_component($class, $missing)
+	{
+		echo 'Missing needed components for class '.$class.'.<br/>';
+		if (array_key_exists('e', $missing)) echo 'Missing extensions: '.implode(',', $missing['e']).'<br/>';
+		if (array_key_exists('f', $missing)) echo 'Missing files: '.implode(',', $missing['f']).'<br/>';
+		if (array_key_exists('d', $missing)) echo 'Missing directories: '.implode(',', $missing['d']).'<br/>';
+
+		$this->internal_error();
+	}
 }
+
+$_installation_data = array();
 
 /* End of file sys/core/core.php */

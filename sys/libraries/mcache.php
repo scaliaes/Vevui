@@ -19,6 +19,11 @@ class Mcache extends Lib
 {
 	private $_conn;
 
+	public static function _install(&$extensions, &$files, &$directories)
+	{
+		$extensions = array('memcached' => TRUE);
+	}
+
 	function  __construct()
 	{
 		parent::__construct();
