@@ -108,7 +108,7 @@ function _process_file($file, $class)
 	}
 	if ('' == $funccode) return array();
 
-	$name = '_install'.rand();
+	$name = '_install'.mt_rand();
 
 	$custom = $extensions = $files = $directories = NULL;
 	$custom = eval('function '.$name.$funccode.' return '.$name.'($extensions, $files, $directories);');

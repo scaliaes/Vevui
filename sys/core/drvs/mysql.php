@@ -84,6 +84,9 @@ class Drv_MySQL extends SQLDrv
 		{
 			case NULL === $mixed:
 				return 'NULL';
+			case ctype_digit($mixed):
+			case is_int($mixed):
+				return (int)$mixed;
 			case is_bool($mixed):
 				return $mixed?'TRUE':'FALSE';
 			case is_string($mixed):
@@ -189,14 +192,25 @@ class Drv_MySQL extends SQLDrv
 		return mysql_affected_rows($this->_connection);
 	}
 
+	private function _do_raw($query, $protected)
+	{
+		reset($protected);
+		$parts = explode(key($protected), $query);
+
+		$remaining = array_slice($protected, 1);
+		if (!$remaining) return implode(current($protected), $parts);
+
+		$new = array();
+		foreach($parts as $part)
+		{
+			$new[] = $this->_do_raw($part, $remaining);
+		}
+		return implode(current($protected), $new);
+	}
+
 	private function _raw()
 	{
-		$query = $this->_raw_query;
-		foreach($this->_protect as $key=>$param)
-		{
-			$query = str_replace($key, $this->escape($param), $query);
-		}
-		return $query;
+		return $this->_protect?$this->_do_raw($this->_raw_query, $this->escape($this->_protect)):$this->_raw_query;
 	}
 
 	private function _insert()

@@ -15,7 +15,7 @@
 ##########################################################################
 
 # Whether to use gettext or not.
-active: true
+active: false
 
 # Text domain, usually it is set to your application name.
 domain: myapp
