@@ -84,6 +84,12 @@ class Ctrl
 		$this->_core->not_found();
 	}
 
+	protected function forbidden()
+	{
+		header('HTTP/1.1 403 Forbidden');
+		die();
+	}
+
 	function disable_errors()
 	{
 		$this->_core->disable_errors();

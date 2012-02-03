@@ -44,5 +44,5 @@ db:
 app:
   debug: true
   cache: false
-
+  
 # End of file app/e/envs/dev.yaml
