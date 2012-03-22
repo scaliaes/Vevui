@@ -39,7 +39,7 @@ class Drv_Redis extends Drv
 			if (property_exists($db_config, 'prefix'))
 			{
 				// use custom prefix on all keys
-				$this->_->setOption(Redis::OPT_PREFIX, $db_config->prefix); 
+				$this->_connection->setOption(Redis::OPT_PREFIX, $db_config->prefix); 
 			}			
 		}
 		catch (RedisException $e)
