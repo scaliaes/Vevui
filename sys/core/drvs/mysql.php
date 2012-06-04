@@ -125,7 +125,7 @@ class Drv_MySQL extends SQLDrv
 			case self::SQL_DELETE:
 				return $this->_delete();
 			default:
-				$$this->_raise_error(0, 'Unknown query type '.$this->_type, __FILE__, __LINE__);
+				$this->_raise_error(0, 'Unknown query type '.$this->_type, __FILE__, __LINE__);
 		}
 		return NULL;
 	}
