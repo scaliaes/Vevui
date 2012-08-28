@@ -45,4 +45,4 @@ app:
   debug: true
   cache: true
 
-# End of file app/e/envs/test.yaml
+# End of file app/e/envs/stage.yaml
