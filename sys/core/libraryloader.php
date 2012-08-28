@@ -38,7 +38,10 @@ class LibraryLoader
 			$data = array_key_exists('l', $data) && array_key_exists($library_name, $data['l']) ? $data['l'][$library_name] : NULL;
 		}
 
-		require($folder.'/'.$library_name.'.php');
+		if (!class_exists($library_name))
+		{
+			require($folder.'/'.$library_name.'.php');
+		}
 		return $this->{$library_name} = new $library_name($data);
 	}
 }

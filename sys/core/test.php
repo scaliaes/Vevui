@@ -54,11 +54,38 @@ require(SYS_PATH.'/core/coreloader.php');
 abstract class Test_case extends PHPUnit_Framework_TestCase
 {
 	private $_core;
+	private $_classes;
 
 	function __construct()
 	{
 		parent::__construct();
 		$this->_core = & Vevui::get();
+
+		$this->_core->uh;
+		$this->_core->ul;
+		$this->_core->m;
+		$this->_classes = glob(APP_PATH.'/{l,h,m}/*.php', GLOB_BRACE);
+		foreach($this->_classes as $c)
+		{
+			require($c);
+		}
+	}
+
+	function getMock($class_name, array $methods, array $arguments, string $mockClassName, boolean $callOriginalConstructor, boolean $callOriginalClone, boolean $callAutoload)
+	{
+		$obj = call_user_func_array('parent::getMock', func_get_args());
+		switch(get_parent_class($class_name))
+		{
+			case 'Mdl':
+				$this->_core->m->$class_name = $obj;
+				break;
+			case 'Lib':
+				$this->_core->ul->$class_name = $obj;
+				break;
+			default:
+				$this->assertTrue(FALSE, 'You can only mock Mdl or Lib subclasses.');
+		}
+		return $obj;
 	}
 
 	function __get($p)
@@ -69,8 +96,8 @@ abstract class Test_case extends PHPUnit_Framework_TestCase
 				$this->assertFileExists('/path/to/file')
 		 		$this->assertTrue(method_exists($myClass, 'myFunction'),'Class does not have method myFunction');
 		*/
-		return $this->_core->{$p};
 
+		return $this->_core->{$p};
 	}
 }
 
