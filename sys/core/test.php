@@ -64,7 +64,7 @@ abstract class Test_case extends PHPUnit_Framework_TestCase
 		$this->_core->uh;
 		$this->_core->ul;
 		$this->_core->m;
-		$this->_classes = glob(APP_PATH.'/{l,h,m}/*.php', GLOB_BRACE);
+		$this->_classes = glob(APP_PATH.'/{l,m}/*.php', GLOB_BRACE);
 		foreach($this->_classes as $c)
 		{
 			require($c);
