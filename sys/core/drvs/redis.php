@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-class Drv_Redis extends Drv
+class DrvRedis extends Drv
 {
 	private $_connection;
 
@@ -39,8 +39,8 @@ class Drv_Redis extends Drv
 			if (property_exists($db_config, 'prefix'))
 			{
 				// use custom prefix on all keys
-				$this->_connection->setOption(Redis::OPT_PREFIX, $db_config->prefix); 
-			}			
+				$this->_connection->setOption(Redis::OPT_PREFIX, $db_config->prefix);
+			}
 		}
 		catch (RedisException $e)
 		{
@@ -56,9 +56,9 @@ class Drv_Redis extends Drv
 
 	function set_igbinary_serializer()
 	{
-		// use igBinary serialize/unserialize	
+		// use igBinary serialize/unserialize
 		$this->_connection->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_IGBINARY);
-	}	
+	}
 
 	function unset_serializer()
 	{

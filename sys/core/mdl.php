@@ -62,7 +62,7 @@ class Mdl
 			$data = Vevui::get_installation_data();
 			$data = array_key_exists('drv', $data) && array_key_exists($drv, $data['drv']) ? $data['drv'][$drv] : NULL;
 
-			$class = 'Drv_'.$drv;
+			$class = 'Drv'.$drv;
 			$this->_drv = new $class($db_config_value, $data);
 
 			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;

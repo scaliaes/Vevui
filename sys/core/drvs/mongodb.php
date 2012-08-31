@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-class Drv_MongoDB extends Drv implements Iterator
+class DrvMongoDB extends Drv implements Iterator
 {
 	const DRV_UNDEFINED = 0;
 	const DRV_RAW = 1;

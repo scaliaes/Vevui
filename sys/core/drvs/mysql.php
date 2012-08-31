@@ -15,7 +15,7 @@
  limitations under the License.
 *************************************************************************/
 
-class Drv_MySQL extends SQLDrv
+class DrvMySQL extends SQLDrv
 {
 	private $_connection;
 	private $_current_query;

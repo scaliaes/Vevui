@@ -62,7 +62,7 @@ class SqlMdl
 			$data = Vevui::get_installation_data();
 			$data = array_key_exists('drv', $data) && array_key_exists($drv, $data['drv']) ? $data['drv'][$drv] : NULL;
 
-			$drv_class = 'Drv_'.$drv;
+			$drv_class = 'Drv'.$drv;
 			$this->_drv = new $drv_class($db_config_value, $data);
 
 			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
