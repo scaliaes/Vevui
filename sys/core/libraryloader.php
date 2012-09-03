@@ -30,18 +30,15 @@ class LibraryLoader
 		if ($this->_user_libraries)
 		{
 			$folder = APP_LIBRARIES_PATH;
-			$data = array_key_exists('ul', $data) && array_key_exists($library_name, $data['ul']) ? $data['ul'][$library_name] : NULL;
+			$data = isset($data['ul'][$library_name]) ? $data['ul'][$library_name] : NULL;
 		}
 		else
 		{
 			$folder = SYS_PATH.'/libraries';
-			$data = array_key_exists('l', $data) && array_key_exists($library_name, $data['l']) ? $data['l'][$library_name] : NULL;
+			$data = isset($data['l'][$library_name]) ? $data['l'][$library_name] : NULL;
 		}
 
-		if (!class_exists($library_name))
-		{
-			require($folder.'/'.$library_name.'.php');
-		}
+		require($folder.'/'.$library_name.'.php');
 		return $this->{$library_name} = new $library_name($data);
 	}
 }

@@ -54,33 +54,29 @@ require(SYS_PATH.'/core/coreloader.php');
 abstract class Test_case extends PHPUnit_Framework_TestCase
 {
 	private $_core;
-	private $_classes;
 
 	function __construct()
 	{
 		parent::__construct();
 		$this->_core = & Vevui::get();
-
-		$this->_core->uh;
-		$this->_core->ul;
-		$this->_core->m;
-		$this->_classes = glob(APP_PATH.'/{l,m}/*.php', GLOB_BRACE);
-		foreach($this->_classes as $c)
-		{
-			require($c);
-		}
 	}
 
-	function getMock($class_name, array $methods, array $arguments, string $mockClassName, boolean $callOriginalConstructor, boolean $callOriginalClone, boolean $callAutoload)
+	protected function setUp()
+	{
+		$this->_core->test_setup();
+	}
+
+	function getMock($originalClassName, $methods = array(), array $arguments = array(), $mockClassName = '', $callOriginalConstructor = TRUE, $callOriginalClone = TRUE, $callAutoload = TRUE)
 	{
 		$obj = call_user_func_array('parent::getMock', func_get_args());
-		switch(get_parent_class($class_name))
+		$lowercase_class_name = strtolower($originalClassName);
+		switch(get_parent_class($originalClassName))
 		{
 			case 'Mdl':
-				$this->_core->m->$class_name = $obj;
+				$this->_core->m->$lowercase_class_name = $obj;
 				break;
 			case 'Lib':
-				$this->_core->ul->$class_name = $obj;
+				$this->_core->ul->$lowercase_class_name = $obj;
 				break;
 			default:
 				$this->assertTrue(FALSE, 'You can only mock Mdl or Lib subclasses.');
@@ -90,13 +86,6 @@ abstract class Test_case extends PHPUnit_Framework_TestCase
 
 	function __get($p)
 	{
-		/*
-			Check you are calling a different element
-			Check there is a mock for that element
-				$this->assertFileExists('/path/to/file')
-		 		$this->assertTrue(method_exists($myClass, 'myFunction'),'Class does not have method myFunction');
-		*/
-
 		return $this->_core->{$p};
 	}
 }

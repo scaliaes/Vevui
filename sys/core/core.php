@@ -131,6 +131,29 @@ class Vevui
 		return TRUE;
 	}
 
+	public function test_setup()
+    {
+		$this->ul;
+		$classes = glob(APP_PATH.'/l/*.php', GLOB_BRACE);
+		foreach($classes as $c)
+		{
+			$classname = substr(basename($c), 0, -4);
+			if (!class_exists($classname)) require($c);
+			unset($this->ul->$classname);
+			$this->ul->$classname = new $classname;
+		}
+
+		$this->m;
+		$classes = glob(APP_PATH.'/m/*.php', GLOB_BRACE);
+		foreach($classes as $c)
+		{
+			$classname = substr(basename($c), 0, -4);
+			if (!class_exists($classname)) require($c);
+			unset($this->m->$classname);
+			$this->m->$classname = new $classname;
+		}
+    }
+
 	private function _shutdown_error_handler($type, $message, $file, $line)
 	{
 		if ($this->_error) return;
