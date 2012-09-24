@@ -1,6 +1,6 @@
 <?php
 /*************************************************************************
- Copyright 2011 Vevui Development Team
+ Copyright 2012 Vevui Development Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -51,43 +51,15 @@ define('ENVIRONMENT', $environment);
 
 require(SYS_PATH.'/core/coreloader.php');
 
-abstract class Test_case extends PHPUnit_Framework_TestCase
+spl_autoload_register(function($class)
 {
-	private $_core;
-
-	function __construct()
+	$file = SYS_PATH.'/core/test/'.strtolower($class).'.php';
+	if (file_exists($file))
 	{
-		parent::__construct();
-		$this->_core = & Vevui::get();
+		include($file);
+		return TRUE;
 	}
-
-	protected function setUp()
-	{
-		$this->_core->test_setup();
-	}
-
-	function getMock($originalClassName, $methods = array(), array $arguments = array(), $mockClassName = '', $callOriginalConstructor = TRUE, $callOriginalClone = TRUE, $callAutoload = TRUE)
-	{
-		$obj = call_user_func_array('parent::getMock', func_get_args());
-		$lowercase_class_name = strtolower($originalClassName);
-		switch(get_parent_class($originalClassName))
-		{
-			case 'Mdl':
-				$this->_core->m->$lowercase_class_name = $obj;
-				break;
-			case 'Lib':
-				$this->_core->ul->$lowercase_class_name = $obj;
-				break;
-			default:
-				$this->assertTrue(FALSE, 'You can only mock Mdl or Lib subclasses.');
-		}
-		return $obj;
-	}
-
-	function __get($p)
-	{
-		return $this->_core->{$p};
-	}
-}
+	return FALSE;
+});
 
 /* End of file sys/core/test.php */
