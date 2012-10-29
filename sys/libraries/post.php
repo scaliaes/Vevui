@@ -78,8 +78,7 @@ class Post extends Lib
 			$required = $rule[1];
 			$funcs = $rule[2];		
 
-			$post_exists = array_key_exists($name, $this->_post) &&
-				(is_scalar($this->_post[$name]) || (NULL === $this->_post[$name]));
+			$post_exists = array_key_exists($name, $this->_post) && ('' !== $this->_post[$name]);
 			if ($post_exists)
 			{
 				$param = $this->_post[$name];
