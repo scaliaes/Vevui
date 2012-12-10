@@ -46,6 +46,11 @@ class Mcache extends Lib
 	{
 		return $this->_conn->set($name, $value, $expiration);
 	}
+
+	function inc($name, $offset = 1)
+	{
+		return $this->_conn->increment($name, $offset);
+	}
 }
 
 /* End of file sys/libraries/mcache.php */
