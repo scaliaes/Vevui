@@ -26,8 +26,8 @@ class L10n extends Lib
 
 	private function _get_locales($locale)
 	{
-		if (NULL === $locale) $locale = $this->l->client->langs;
-		if (NULL === $locale) $locale = $this->e->l10n->default;
+		if (!$locale) $locale = $this->l->client->langs;
+		if (!$locale) $locale = $this->e->l10n->default;
 		if (!is_array($locale)) $locale = array($locale);
 		return $locale;
 	}
