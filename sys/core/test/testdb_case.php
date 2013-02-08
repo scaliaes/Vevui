@@ -17,6 +17,23 @@
 
 abstract class TestDB_case extends PHPUnit_Extensions_Database_TestCase
 {
+	class DB_operation_set_env implements PHPUnit_Extensions_Database_Operation_IDatabaseOperation
+	{
+		private $_elem;
+		private $_value;
+
+		public function __construct($elem, $value)
+		{
+			$this->_elem  = $elem;
+			$this->_value = $value;
+		}
+
+		public function execute(PHPUnit_Extensions_Database_DB_IDatabaseConnection $connection, PHPUnit_Extensions_Database_DataSet_IDataSet $dataSet)
+		{
+			$connection->getConnection()->query('SET '.$this->_elem.'='.$this->_value);
+		}
+	}
+
 	private $_core;
 	private $_conn = NULL;
 	static private $_pdo = NULL;
@@ -38,14 +55,20 @@ abstract class TestDB_case extends PHPUnit_Extensions_Database_TestCase
 
 		// Only MySQL at the moment. mysql:dbname=testdb;host=127.0.0.1
 		$dsn = $db_config_value->drv.':dbname='.$db_config_value->db.';host='.$db_config_value->host;
-		self::$_pdo = new PDO($dsn, $db_config_value->user, $db_config_value->pass);
+		self::$_pdo = new PDO($dsn, $db_config_value->user, $db_config_value->pass, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''));
 		$this->_conn = $this->createDefaultDBConnection(self::$_pdo, $db_config_value->db);
 	}
 
 	protected function getDatabaseTester()
 	{
 		$tester = new PHPUnit_Extensions_Database_DefaultTester($this->_conn);
-		$tester->setSetUpOperation(PHPUnit_Extensions_Database_Operation_Factory::CLEAN_INSERT());
+		$tester->setSetUpOperation(new PHPUnit_Extensions_Database_Operation_Composite(array
+		(
+			new DB_operation_set_env('foreign_key_checks', 0),
+			PHPUnit_Extensions_Database_Operation_Factory::DELETE_ALL(),
+			new DB_operation_set_env('foreign_key_checks', 1),
+			PHPUnit_Extensions_Database_Operation_Factory::INSERT()
+		)));
 		$tester->setTearDownOperation(PHPUnit_Extensions_Database_Operation_Factory::NONE());
 
 		return $tester;
@@ -58,14 +81,15 @@ abstract class TestDB_case extends PHPUnit_Extensions_Database_TestCase
 
 	protected function setUp()
 	{
+		ob_start();
 		$this->_core->test_setup();
 	}
 
-	function getMock($originalClassName, $methods = array(), array $arguments = array(), $mockClassName = '', $callOriginalConstructor = TRUE, $callOriginalClone = TRUE, $callAutoload = TRUE, $mockedMethods = array(), $cloneArguments = TRUE)
+	function get_mock($original_class_name)
 	{
 		$obj = call_user_func_array('parent::getMock', func_get_args());
-		$lowercase_class_name = strtolower($originalClassName);
-		switch(get_parent_class($originalClassName))
+		$lowercase_class_name = strtolower($original_class_name);
+		switch(get_parent_class($original_class_name))
 		{
 			case 'Mdl':
 				$this->_core->m->$lowercase_class_name = $obj;
@@ -82,6 +106,11 @@ abstract class TestDB_case extends PHPUnit_Extensions_Database_TestCase
 	function __get($p)
 	{
 		return $this->_core->{$p};
+	}
+
+	protected function tearDown()
+	{
+		ob_end_clean();
 	}
 }
 

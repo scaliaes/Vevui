@@ -27,14 +27,15 @@ abstract class Test_case extends PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
+		ob_start();
 		$this->_core->test_setup();
 	}
 
-	function getMock($originalClassName, $methods = array(), array $arguments = array(), $mockClassName = '', $callOriginalConstructor = TRUE, $callOriginalClone = TRUE, $callAutoload = TRUE)
+	function get_mock($original_class_name)
 	{
 		$obj = call_user_func_array('parent::getMock', func_get_args());
-		$lowercase_class_name = strtolower($originalClassName);
-		switch(get_parent_class($originalClassName))
+		$lowercase_class_name = strtolower($original_class_name);
+		switch(get_parent_class($original_class_name))
 		{
 			case 'Mdl':
 				$this->_core->m->$lowercase_class_name = $obj;
@@ -51,6 +52,11 @@ abstract class Test_case extends PHPUnit_Framework_TestCase
 	function __get($p)
 	{
 		return $this->_core->{$p};
+	}
+
+	protected function tearDown()
+	{
+		ob_end_clean();
 	}
 }
 
