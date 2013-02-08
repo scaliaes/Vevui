@@ -15,25 +15,25 @@
  limitations under the License.
 *************************************************************************/
 
-abstract class TestDB_case extends PHPUnit_Extensions_Database_TestCase
+class DB_operation_set_env implements PHPUnit_Extensions_Database_Operation_IDatabaseOperation
 {
-	class DB_operation_set_env implements PHPUnit_Extensions_Database_Operation_IDatabaseOperation
+	private $_elem;
+	private $_value;
+
+	public function __construct($elem, $value)
 	{
-		private $_elem;
-		private $_value;
-
-		public function __construct($elem, $value)
-		{
-			$this->_elem  = $elem;
-			$this->_value = $value;
-		}
-
-		public function execute(PHPUnit_Extensions_Database_DB_IDatabaseConnection $connection, PHPUnit_Extensions_Database_DataSet_IDataSet $dataSet)
-		{
-			$connection->getConnection()->query('SET '.$this->_elem.'='.$this->_value);
-		}
+		$this->_elem  = $elem;
+		$this->_value = $value;
 	}
 
+	public function execute(PHPUnit_Extensions_Database_DB_IDatabaseConnection $connection, PHPUnit_Extensions_Database_DataSet_IDataSet $dataSet)
+	{
+		$connection->getConnection()->query('SET '.$this->_elem.'='.$this->_value);
+	}
+}
+
+abstract class TestDB_case extends PHPUnit_Extensions_Database_TestCase
+{
 	private $_core;
 	private $_conn = NULL;
 	static private $_pdo = NULL;
