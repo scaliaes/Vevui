@@ -31,7 +31,7 @@ abstract class Drv
 
 	protected function _raise_error($errno, $error_string, $file, $line)
 	{
-		$this->_core->error_handler($errno, $error_string, $file, $line);
+		$this->_core->raise_error($errno, $error_string, $file, $line);
 	}
 
 	abstract function register_functions();

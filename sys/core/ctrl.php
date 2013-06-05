@@ -74,7 +74,7 @@ class Ctrl
 			default:
 				break;
 		}
-		
+
 		header('Location: '.$location);
 		exit;
 	}
@@ -90,6 +90,12 @@ class Ctrl
 		die();
 	}
 
+	protected function no_content()
+	{
+		header('HTTP/1.1 204 No Content');
+		exit;
+	}
+
 	function disable_errors()
 	{
 		$this->_core->disable_errors();
@@ -100,9 +106,9 @@ class Ctrl
 		$this->_core->enable_errors();
 	}
 
-	function error_handler($callback)
+	function register_error_handler($callback)
 	{
-		$this->_core->register_error_handler($callback);
+		$this->_core->register_user_error_handler($callback);
 	}
 
 	function __destruct()

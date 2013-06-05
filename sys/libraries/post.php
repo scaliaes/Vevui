@@ -29,7 +29,7 @@ class Post extends Lib
 		$this->_errors = array();
 		$this->_min_len_rules = array();
 		$this->_max_len_rules = array();
-		$this->_valid_mail_rules = array();		
+		$this->_valid_mail_rules = array();
 		$this->_curname = '';
 	}
 
@@ -54,15 +54,15 @@ class Post extends Lib
 	function max($len)
 	{
 		$this->_max_len_rules[$this->_curname] = $len;
-		return $this;		
-	}	
+		return $this;
+	}
 
 	function len($len)
 	{
 		$this->_min_len_rules[$this->_curname] = $len;
 		$this->_max_len_rules[$this->_curname] = $len;
-		return $this;		
-	}	
+		return $this;
+	}
 
 	function valid_email()
 	{
@@ -76,7 +76,7 @@ class Post extends Lib
 		{
 			$name = $rule[0];
 			$required = $rule[1];
-			$funcs = $rule[2];		
+			$funcs = $rule[2];
 
 			$post_exists = array_key_exists($name, $this->_post) && ('' !== $this->_post[$name]);
 			if ($post_exists)
@@ -102,7 +102,7 @@ class Post extends Lib
 				}
 				$this->_post[$name] = $param;
 			}
-			
+
 			if ( $required && ((!$post_exists) || (''===$this->_post[$name])) )
 			{
 				$this->_errors[ $name . '_error' ] = TRUE;
@@ -122,7 +122,7 @@ class Post extends Lib
 					$this->_errors[ $name . '_error' ] = TRUE;
 			}
 
-			if (array_key_exists($name, $this->_valid_mail_rules))
+			if ($post_exists && array_key_exists($name, $this->_valid_mail_rules))
 			{
 				$regexp = '/^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[.][A-z]{2,4}$/';
 				if ( (!$post_exists) || (!preg_match($regexp, $this->_post[$name])) )

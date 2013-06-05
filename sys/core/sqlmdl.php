@@ -57,12 +57,16 @@ class SqlMdl
 				require(SYS_PATH.'/core/sqldrv.php');
 				self::$_sqldrv_loaded = TRUE;
 			}
-			require(SYS_PATH.'/core/drvs/'.$drv.'.php');
+
+			$drv_class = 'Drv_'.$drv;
+			if(!class_exists($drv_class))
+			{
+				require(SYS_PATH.'/core/drvs/'.$drv.'.php');
+			}
 
 			$data = Vevui::get_installation_data();
 			$data = array_key_exists('drv', $data) && array_key_exists($drv, $data['drv']) ? $data['drv'][$drv] : NULL;
 
-			$drv_class = 'Drv_'.$drv;
 			$this->_drv = new $drv_class($db_config_value, $data);
 
 			self::$_drivers[$db_config_key]['drv'] = & $this->_drv;
@@ -85,7 +89,7 @@ class SqlMdl
 	{
 		$this->_drv->new_query(NULL);
 		return $this->_drv->raw($query, $protect);
-	}	
+	}
 }
 
 /* End of file sys/core/sqlmdl.php */

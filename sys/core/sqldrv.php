@@ -23,6 +23,7 @@ abstract class SQLDrv implements Iterator
 	const SQL_SELECT = 3;
 	const SQL_UPDATE = 4;
 	const SQL_DELETE = 5;
+	const SQL_REPLACE = 6;
 
 	const JOIN = 0;
 	const NATURAL_JOIN = 1;
@@ -83,6 +84,13 @@ abstract class SQLDrv implements Iterator
 	function insert($fields)
 	{
 		$this->_type = self::SQL_INSERT;
+		$this->_fields = is_array(reset($fields))?$fields:array($fields);
+		return $this;
+	}
+
+	function replace($fields)
+	{
+		$this->_type = self::SQL_REPLACE;
 		$this->_fields = is_array(reset($fields))?$fields:array($fields);
 		return $this;
 	}
@@ -214,7 +222,7 @@ abstract class SQLDrv implements Iterator
 
 	protected function _raise_error($errno, $error_string, $file, $line)
 	{
-		$this->_core->error_handler($errno, $error_string, $file, $line);
+		$this->_core->raise_error($errno, $error_string, $file, $line);
 	}
 
 	abstract function register_functions();

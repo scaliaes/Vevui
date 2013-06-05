@@ -68,7 +68,11 @@ class ConfigLoader
 
 		$core = & Vevui::get();
 		$core->disable_errors();
-		@include($config_file_path);
+		if(file_exists($config_file_path))
+		{
+			@include($config_file_path);
+		}
+
 		$core->enable_errors();
 
 		if (isset($config) && self::VERSION === $config->_vevui->version && ENVIRONMENT === $config->_vevui->environment)

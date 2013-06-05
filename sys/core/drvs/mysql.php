@@ -37,7 +37,7 @@ class Drv_MySQL extends SQLDrv
 
 		if (!$this->_connection)
 		{
-			$this->_raise_error(0, 'Can\' connect to MySQL.', __FILE__, __LINE__);
+			$this->_raise_error(0, 'Can\'t connect to MySQL.', __FILE__, __LINE__);
 			return;
 		}
 
@@ -47,7 +47,7 @@ class Drv_MySQL extends SQLDrv
 			return;
 		}
 
-		if (!@mysql_select_db($db_config->db, $this->_connection));
+		if (!@mysql_select_db($db_config->db, $this->_connection))
 		{
 			$this->_raise_error(@mysql_errno($this->_connection), @mysql_error($this->_connection), __FILE__, __LINE__);
 			return;
@@ -86,7 +86,7 @@ class Drv_MySQL extends SQLDrv
 				return 'NULL';
 			case ctype_digit($mixed):
 			case is_int($mixed):
-				return (int)$mixed;
+				return '"'.$mixed.'"';
 			case is_bool($mixed):
 				return $mixed?'TRUE':'FALSE';
 			case is_string($mixed):
@@ -124,6 +124,8 @@ class Drv_MySQL extends SQLDrv
 				return $this->_update();
 			case self::SQL_DELETE:
 				return $this->_delete();
+			case self::SQL_REPLACE:
+				return $this->_replace();
 			default:
 				$this->_raise_error(0, 'Unknown query type '.$this->_type, __FILE__, __LINE__);
 		}
@@ -216,6 +218,21 @@ class Drv_MySQL extends SQLDrv
 	private function _insert()
 	{
 		$query = 'INSERT INTO '.$this->_table;
+
+		$query .= '(`' . implode('`, `', array_keys($this->_fields[0])) . '`) VALUES (';
+		$rows = array();
+		foreach($this->_fields as $values)
+		{
+			$rows[] = implode(',', array_map(array($this, 'escape'), $values));
+		}
+
+		$query .= implode('), (', $rows).');';
+		return $query;
+	}
+
+	private function _replace()
+	{
+		$query = 'REPLACE INTO '.$this->_table;
 
 		$query .= '(`' . implode('`, `', array_keys($this->_fields[0])) . '`) VALUES (';
 		$rows = array();

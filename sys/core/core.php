@@ -30,11 +30,16 @@ class Vevui
 	private $_request_method = NULL;
 	private $_request_ctrl = NULL;
 
-	private $_error = FALSE;
-
 	private $_error_handler = NULL;
 
 	private $_uri = NULL;
+
+	protected function __construct()
+	{
+		// TODO: Build ErrorHandler correctly
+		require(SYS_PATH.'/core/errorhandler.php');
+		$this->_error_handler = new ErrorHandler($this);
+	}
 
 	public static function & get()
 	{
@@ -45,94 +50,8 @@ class Vevui
 		return self::$_core;
 	}
 
-	public function shutdown()
-	{
-		$error = error_get_last();
-		if ($error)
-		{
-			$type = $error['type'];
-			switch($type)
-			{
-				case E_ERROR:
-				case E_PARSE:
-				case E_CORE_ERROR:
-				case E_COMPILE_ERROR:
-				case E_USER_ERROR:
-				case E_PARSE:
-				case E_RECOVERABLE_ERROR:
-					$this->_shutdown_error_handler($type, $error['message'], $error['file'], $error['line']);
-					die();
-			}
-		}
-	}
-
-	public function exception_handler($e)
-	{
-		$this->_call_error_handler($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
-
-		if(FALSE === $this->e->app->debug)
-		{
-			$this->_shutdown_error_handler($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
-			die();
-		}
-		else
-		{
-			echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
-			echo '<pre>EH: '; print_r($e); echo '</pre></div>';
-		}
-	}
-
-	public function error_handler($errno, $errstr, $errfile, $errline)
-	{
-		if (__FILE__ == $errfile) $this->not_found();
-
-		if (TRUE === $this->_call_error_handler($errno, $errstr, $errfile, $errline)) return TRUE;
-
-		switch($errno)
-		{
-			case E_ERROR:
-			case E_PARSE:
-			case E_CORE_ERROR:
-			case E_COMPILE_ERROR:
-			case E_USER_ERROR:
-			case E_PARSE:
-			case E_RECOVERABLE_ERROR:
-				break;
-			case E_WARNING:
-			case E_NOTICE:
-			case E_CORE_WARNING:
-			case E_COMPILE_WARNING:
-			case E_USER_WARNING:
-			case E_USER_NOTICE:
-			case E_STRICT:
-			case E_DEPRECATED:
-			case E_USER_DEPRECATED:
-				if(FALSE === $this->e->app->debug)
-				{
-					$this->_shutdown_error_handler($errno, $errstr, $errfile, $errline);
-					die();
-				}
-				else
-				{
-					echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
-					$error = array
-					(
-						'type' => $errno,
-						'message' => $errstr,
-						'file' => $errfile,
-						'line' => $errline
-					);
-					echo '<pre>EH: '; print_r($error); echo '</pre></div>';
-					$this->_call_error_handler($errno, $errstr, $errfile, $errline);
-				}
-				break;
-		}
-
-		return TRUE;
-	}
-
 	public function test_setup()
-    {
+  {
 		$this->ul;
 		$classes = glob(APP_PATH.'/l/*.php', GLOB_BRACE);
 		foreach($classes as $c)
@@ -152,160 +71,11 @@ class Vevui
 			unset($this->m->$classname);
 			$this->m->$classname = new $classname;
 		}
-    }
-
-	private function _shutdown_error_handler($type, $message, $file, $line)
-	{
-		if ($this->_error) return;
-		$this->_error = TRUE;
-		$this->disable_errors();
-
-		if (__FILE__ == $file) $this->_not_found();
-		else $this->_internal_error();
-
-		$app = $this->e->app;
-		if($app->debug)
-		{
-			echo '<div style="position: fixed; bottom: 0; left: 0; width: 100%; border: 1px solid; z-index: 10; background-color: #feedb9; font-size: 10px; padding: 5px; white-space: pre-wrap">';
-			$error = array
-			(
-				'type' => $type,
-				'message' => $message,
-				'file' => $file,
-				'line' => $line
-			);
-			echo '<pre> SE:'; print_r($error); echo '</pre>';
-
-			$file_contents = file_get_contents($file);
-			$nlines = count(file($file));
-			$range = range(max(1, $line-5), min($nlines, $line+5));
-			$lines_array = preg_split('/<[ ]*br[ ]*\/[ ]*>/', highlight_string($file_contents, TRUE));
-			$highlighted = '';
-			$line_nums = '';
-			foreach($range as $i)
-			{
-				if ($i == ($line))
-				{
-					$line_nums .= '<div style="background-color: #ff9999">';
-		//				$highlighted .= '<div style="background-color: #ff9999">';
-				}
-				$line_nums .= $i.'<br/>';
-				$highlighted .= $lines_array[$i-1].'<br/>';
-				if ($i == ($line))
-				{
-					$line_nums .= '</div>';
-		//				$highlighted .= '</div>';
-				}
-			}
-			echo '<style type="text/css">
-							.num {
-							float: left;
-							color: gray;
-		//						font-size: 13px;
-		//						font-family: monospace;
-							text-align: right;
-							margin-right: 6pt;
-							padding-right: 6pt;
-							border-right: 1px solid gray;}
-
-							body {margin: 0px; margin-left: 5px;}
-							td {vertical-align: top;}
-							code {white-space: nowrap;}
-						</style>',
-					"<table><tr><td class=\"num\">\n$line_nums\n</td><td>\n$highlighted\n</td></tr></table>";
-		}
-		else
-		{
-			if (property_exists($app, 'log_errors') && $app->log_errors)
-			{
-				$db = new SQLite3($app->log_errors);
-				$values = array();
-				$values['file'] = "'".$db->escapeString($file)."'";
-				$values['line'] = (int) $line;
-				$values['type'] = (int) $type;
-				$values['message'] = "'".$db->escapeString($message)."'";
-
-				$time = time();
-				$sqltime = date('Y-m-d H:i:s', $time);
-				$values['timestamp'] = "'".$sqltime."'";
-				$values['last_timestamp'] = "'".$sqltime."'";
-				$values['slice'] = (int) ($time & 0xffffff00);
-				$values['count'] = 0;
-
-				$values['class'] = "'".$db->escapeString($this->_request_class)."'";
-				$values['method'] = "'".$db->escapeString($this->_request_method)."'";
-
-				$values['uri'] = NULL===$this->_uri?'NULL':"'".$db->escapeString($this->_uri)."'";
-
-				$input = array();
-				if ($_GET) $input['_GET'] = $_GET;
-				if ($_POST) $input['_POST'] = $_POST;
-				if ($_COOKIE) $input['_COOKIE'] = $_COOKIE;
-				$values['input'] = "'".$db->escapeString(serialize($input))."'";
-
-				$sql = 'INSERT OR IGNORE INTO errors ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
-				if ($db->exec($sql))
-				{
-					$sql = 'UPDATE errors
-							SET count=count+1, last_timestamp='.$values['last_timestamp'].'
-							WHERE file='.$values['file'].'
-								AND line='.$values['line'].'
-								AND type='.$values['type'].'
-								AND slice='.$values['slice'];
-					$db->exec($sql);
-				}
-				else
-				{
-					$sql = 'CREATE TABLE errors
-							(
-								file VARCHAR(255) NOT NULL,
-								line INT NOT NULL,
-								type INT NOT NULL,
-								message TEXT NOT NULL,
-								timestamp TIMESTAMP NOT NULL,
-								last_timestamp TIMESTAMP NOT NULL,
-								slice INT NOT NULL,
-								count INT NOT NULL,
-								class VARCHAR(255) NOT NULL,
-								method VARCHAR(255) NOT NULL,
-								uri TEXT NULL,
-								input TEXT NOT NULL,
-							CONSTRAINT uniq UNIQUE (file ASC, line ASC, type ASC, slice ASC)
-							)';
-					$db->exec($sql);
-					$sql = 'INSERT OR IGNORE INTO errors ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
-					$db->exec($sql);
-				}
-				$db->close();
-			}
-		}
-	}
-
-	protected function __construct()
-	{
-		// Error handlers
-		error_reporting(0);
-		ini_set('display_errors', 0);
-		register_shutdown_function(array($this, 'shutdown'));
-		set_error_handler(array($this, 'error_handler'));
-		set_exception_handler(array($this, 'exception_handler'));
-	}
-
-	public function register_error_handler($callback)
-	{
-		$this->_error_handler = $callback;
-	}
+  }
 
 	public function route()
 	{
 		$app = $this->e->app;
-
-		// Developer mode. Should show a warning.
-		if (property_exists($app, 'dev_mode') && $app->dev_mode)
-		{
-			error_reporting(E_ALL);
-			ini_set('display_errors', 1);
-		}
 
 		$this->_uri = urldecode($_SERVER['REQUEST_URI']);
 
@@ -366,7 +136,14 @@ class Vevui
 		// Call controller/method
 		$filepath = APP_CONTROLLERS_PATH.'/'.$this->_request_class.'.php';
 
+		require(SYS_PATH.'/core/baselog.php');
+		require(SYS_PATH.'/core/log.php');
 		require(SYS_PATH.'/core/ctrl.php');
+
+		if(!file_exists($filepath))
+		{
+			$this->not_found();
+		}
 		require($filepath);
 
 		$data = Vevui::get_installation_data();
@@ -379,7 +156,9 @@ class Vevui
 			$this->not_found();
 		}
 
+		ob_start();
 		call_user_func_array(array($this->_request_ctrl, $this->_request_method), $request_params);
+		ob_flush();
 	}
 
 	public function __get($prop_name)
@@ -465,6 +244,23 @@ class Vevui
 		}
 	}
 
+  public function _not_found()
+  {
+    if (!$this->_haanga_loaded)
+    {
+      $this->_load_haanga();
+      $this->_haanga_loaded = TRUE;
+    }
+
+    header('HTTP/1.0 404 Not Found');
+
+    $config = $this->e->haanga;
+    $config['template_dir'] = APP_ERROR_TEMPLATES_PATH;
+    Haanga::configure($config);
+
+    Haanga::Load('404.html', array('resource' => $_SERVER['REQUEST_URI']));
+  }
+
 	public function render($view_name, $vars = array(), $print_output = TRUE)
 	{
 		if (!$this->_haanga_loaded)
@@ -475,71 +271,36 @@ class Vevui
 		return Haanga::Load($view_name.'.html', $vars, TRUE);
 	}
 
-	private function _not_found()
-	{
-		if (!$this->_haanga_loaded)
-		{
-			$this->_load_haanga();
-			$this->_haanga_loaded = TRUE;
-		}
-
-		header('HTTP/1.0 404 Not Found');
-
-		$config = $this->e->haanga;
-		$config['template_dir'] = APP_ERROR_TEMPLATES_PATH;
-		Haanga::configure($config);
-
-		Haanga::Load('404.html', array('resource' => $_SERVER['REQUEST_URI']));
-	}
-
 	public function not_found()
 	{
 		$this->_not_found();
 		die();
 	}
 
-	private function _internal_error()
-	{
-		if (!$this->_haanga_loaded)
-		{
-			$this->_load_haanga();
-			$this->_haanga_loaded = TRUE;
-		}
-
-		header('HTTP/1.0 500 Internal Server Error');
-
-		$config = $this->e->haanga;
-		$config['template_dir'] = APP_ERROR_TEMPLATES_PATH;
-		Haanga::configure($config);
-
-		Haanga::Load('500.html', array('resource' => $_SERVER['REQUEST_URI']));
-	}
-
 	public function internal_error()
 	{
-		$this->_internal_error();
+		$this->_error_handler->_internal_error();
 		die();
 	}
 
 	public function disable_errors()
 	{
-		restore_error_handler();
-		restore_exception_handler();
+		$this->_error_handler->_disable_errors();
+	}
+
+  public function register_user_error_handler($callback)
+  {
+    $this->_error_handler->_register_user_error_handler($callback);
+  }
+
+	public function raise_error($errno, $error_string, $file, $line)
+	{
+		$this->_error_handler->error_handler($errno, $error_string, $file, $line);
 	}
 
 	public function enable_errors()
 	{
-		set_error_handler(array($this, 'error_handler'));
-		set_exception_handler(array($this, 'exception_handler'));
-	}
-
-	private function _call_error_handler()
-	{
-		if (NULL !== $this->_error_handler)
-		{
-			return call_user_func_array($this->_error_handler, func_get_args());
-		}
-		return NULL;
+		$this->_error_handler->_enable_errors();
 	}
 
 	public static function get_installation_data()

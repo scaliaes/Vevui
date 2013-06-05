@@ -17,7 +17,12 @@
 
 define('VEVUI_VERSION', '0.5pre');
 
-@include(CACHE_PATH.'/core_'.VEVUI_VERSION.'_'.ENVIRONMENT.'.php');
+$core_file_path = CACHE_PATH.'/core_'.VEVUI_VERSION.'_'.ENVIRONMENT.'.php';
+if(file_exists($core_file_path))
+{
+	@include($core_file_path);
+}
+
 if (!class_exists('Vevui', FALSE))
 {
 	require(SYS_PATH.'/core/install.php');
